@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, LogOut, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useStore } from "../context/StoreContext.jsx";
 
 export default function AdminLoginPage() {
-  const { adminLogin, authError, setAuthError, isAuthenticated, isAdmin, loading } = useAuth();
+  const { adminLogin, logout, user, authError, setAuthError, isAuthenticated, isAdmin, loading } = useAuth();
   const { notify } = useStore();
   const navigate = useNavigate();
 
@@ -51,6 +51,15 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="auth-page-form-wrap">
+          {isAuthenticated && !isAdmin && (
+            <div className="upi-pending-banner" style={{ marginBottom: 16 }}>
+              <strong>Signed in as customer ({user?.email}).</strong>
+              <p style={{ margin: "6px 0 10px" }}>Sign out of the customer session or sign in directly with an administrator account below.</p>
+              <button type="button" className="button button-outline" onClick={logout}>
+                <LogOut size={14} /> Sign Out Customer
+              </button>
+            </div>
+          )}
           <form className="auth-form" onSubmit={handleSubmit}>
             <label className="field-control">
               <span>Administrator Email</span>

@@ -4,6 +4,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useStore } from "../context/StoreContext.jsx";
 import { ORDER_STATUSES } from "../data/products.js";
+import { apiUrl } from "../lib/api.js";
 import { formatPrice } from "../lib/format.js";
 import ProductCard from "../components/ProductCard.jsx";
 
@@ -158,12 +159,12 @@ function OrdersTab({ orders: localOrders, user }) {
     const qs = new URLSearchParams();
     if (user?.uid) qs.set("userId", user.uid);
     if (user?.email) qs.set("email", user.email);
-    fetch(`/api/orders/my?${qs.toString()}`)
+    fetch(apiUrl(`/api/orders/my?${qs.toString()}`))
       .then((r) => r.json())
       .then((d) => { if (Array.isArray(d.orders)) setServerOrders(d.orders); })
       .catch(() => {});
 
-    const source = new EventSource("/api/orders/stream");
+    const source = new EventSource(apiUrl("/api/orders/stream"));
     source.addEventListener("order-update", (event) => {
       try {
         const update = JSON.parse(event.data);

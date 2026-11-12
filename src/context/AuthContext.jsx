@@ -12,6 +12,8 @@ import { auth, db } from "../lib/firebase.js";
 
 const AuthContext = createContext(null);
 
+const ADMIN_EMAILS = ["admin@ssawant.in", "shivaji@ssawant.in"];
+
 const IS_FIREBASE_CONFIGURED = Boolean(
   import.meta.env.VITE_FIREBASE_API_KEY &&
   import.meta.env.VITE_FIREBASE_API_KEY !== "PLACEHOLDER_API_KEY"
@@ -91,6 +93,7 @@ export function AuthProvider({ children }) {
         setAuthError(msg);
         throw new Error(msg);
       }
+      const isOwnerAdmin = ADMIN_EMAILS.includes(normalizedEmail);
       const newUser = {
         uid: `local-${Date.now()}`,
         displayName: name.trim(),
@@ -98,7 +101,7 @@ export function AuthProvider({ children }) {
         email: normalizedEmail,
         phone: phone.trim(),
         password,
-        role: "customer",
+        role: isOwnerAdmin ? "admin" : "customer",
         createdAt: { seconds: Math.floor(Date.now() / 1000) },
         addresses: [],
         measurements: {},
@@ -109,7 +112,7 @@ export function AuthProvider({ children }) {
       localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify(sessionUser));
       setUser(sessionUser);
       setProfile(sessionUser);
-      setHasAdminClaim(false);
+      setHasAdminClaim(isOwnerAdmin);
       return sessionUser;
     }
 
@@ -193,14 +196,39 @@ export function AuthProvider({ children }) {
 
     if (!IS_FIREBASE_CONFIGURED) {
       const users = getLocalUsers();
-      const found = users.find((u) => u.email === normalizedEmail);
+      let found = users.find((u) => u.email === normalizedEmail);
+
+      // Auto-promote owner emails to admin if created via regular signup
+      if (found && ADMIN_EMAILS.includes(normalizedEmail) && found.role !== "admin") {
+        found.role = "admin";
+        saveLocalUsers(users.map((u) => u.email === normalizedEmail ? found : u));
+      }
+
+      // If user does not exist yet on this domain/device, but is an authorized owner email, provision on first login
+      if (!found && ADMIN_EMAILS.includes(normalizedEmail)) {
+        const newAdmin = {
+          uid: `admin-${Date.now()}`,
+          displayName: "Shivaji Sawant",
+          name: "Shivaji Sawant",
+          email: normalizedEmail,
+          phone: "+91 83088 78204",
+          password,
+          role: "admin",
+          createdAt: { seconds: Math.floor(Date.now() / 1000) },
+          addresses: [],
+          measurements: {},
+        };
+        saveLocalUsers([...users, newAdmin]);
+        found = newAdmin;
+      }
+
       if (!found) {
-        const msg = "Administrator account not found. Provision an admin account using the backend setup script.";
+        const msg = "Administrator account not found. Only authorized administrators (shivaji@ssawant.in, admin@ssawant.in) can access this portal.";
         setAuthError(msg);
         throw new Error(msg);
       }
       if (found.password !== password) {
-        const msg = "Incorrect administrator credentials.";
+        const msg = "Incorrect administrator credentials. Please check your password.";
         setAuthError(msg);
         throw new Error(msg);
       }
@@ -226,7 +254,8 @@ export function AuthProvider({ children }) {
       ]);
       const claimAdmin = Boolean(tokenResult?.claims?.admin);
       const docAdmin = snap?.exists() && snap.data()?.role === "admin";
-      if (!claimAdmin && !docAdmin) {
+      const isConfiguredAdmin = ADMIN_EMAILS.includes(normalizedEmail);
+      if (!claimAdmin && !docAdmin && !isConfiguredAdmin) {
         await signOut(auth);
         setUser(null);
         setProfile(null);
@@ -235,8 +264,8 @@ export function AuthProvider({ children }) {
         setAuthError(msg);
         throw new Error(msg);
       }
-      setHasAdminClaim(claimAdmin);
-      setProfile(snap?.exists() ? snap.data() : { name: cred.user.displayName || "Admin", email: normalizedEmail, role: "admin" });
+      setHasAdminClaim(claimAdmin || isConfiguredAdmin);
+      setProfile(snap?.exists() ? snap.data() : { name: cred.user.displayName || "Shivaji Sawant", email: normalizedEmail, role: "admin" });
       return cred.user;
     } catch (err) {
       const msg = err.code ? mapAuthError(err.code) : err.message;

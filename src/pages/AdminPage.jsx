@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { CATEGORIES, ORDER_STATUSES, SUIT_COLOURS } from "../data/products.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useStore } from "../context/StoreContext.jsx";
+import { apiUrl } from "../lib/api.js";
 import { createId, formatPrice } from "../lib/format.js";
 import { localImageToDataUrl } from "../services/repository.js";
 import { ImagePlaceholder } from "../components/ProductMedia.jsx";
@@ -353,7 +354,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!isAuthenticated || !isAdmin || !user?.email) return;
-    fetch("/api/admin/orders", {
+    fetch(apiUrl("/api/admin/orders"), {
       headers: { "X-Admin-Role": "admin", "X-Admin-Email": user.email },
     })
       .then((r) => r.json())
@@ -433,7 +434,7 @@ export default function AdminPage() {
 
   async function patchOrder(orderId, updates, successMsg) {
     try {
-      const res = await fetch(`/api/admin/orders/${encodeURIComponent(orderId)}`, {
+      const res = await fetch(apiUrl(`/api/admin/orders/${encodeURIComponent(orderId)}`), {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -463,7 +464,7 @@ export default function AdminPage() {
 
   async function saveCodSettings() {
     try {
-      const res = await fetch("/api/admin/settings", {
+      const res = await fetch(apiUrl("/api/admin/settings"), {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

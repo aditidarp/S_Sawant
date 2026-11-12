@@ -113,7 +113,7 @@ export function Footer() {
       <div className="footer-bottom">
         <span>© {new Date().getFullYear()} S. SAWANT MENS WEAR · The Art of Fine Tailoring</span>
         <span>Chhatrapati Sambhajinagar, Maharashtra</span>
-        <span>Bespoke Indian Menswear</span>
+        <Link to="/admin/login">Admin Login</Link>
       </div>
     </footer>
   );

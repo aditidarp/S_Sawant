@@ -3,6 +3,7 @@ import { Check, Clock3, Package, Search, ShieldCheck, Truck } from "lucide-react
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { ORDER_STATUSES } from "../data/products.js";
+import { apiUrl } from "../lib/api.js";
 import { formatPrice } from "../lib/format.js";
 
 export default function TrackOrderPage() {
@@ -30,7 +31,7 @@ export default function TrackOrderPage() {
       if (targetPhone.trim()) qs.set("phone", targetPhone.trim());
       if (isAuthenticated && user?.uid) qs.set("userId", user.uid);
 
-      const res = await fetch(`/api/orders/track?${qs.toString()}`);
+      const res = await fetch(apiUrl(`/api/orders/track?${qs.toString()}`));
       const data = await res.json();
       if (!res.ok) {
         if (data.requiresVerification) setNeedsPhone(true);
@@ -57,7 +58,7 @@ export default function TrackOrderPage() {
   // Real-time Server-Sent Events (SSE) subscription for live status updates
   useEffect(() => {
     if (!order?.id) return;
-    const source = new EventSource("/api/orders/stream");
+    const source = new EventSource(apiUrl("/api/orders/stream"));
     source.addEventListener("connected", () => setLiveConnected(true));
     source.addEventListener("order-update", (event) => {
       try {

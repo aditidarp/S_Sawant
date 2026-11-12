@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { CATEGORIES, FABRIC_BRANDS } from "../data/products.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useStore } from "../context/StoreContext.jsx";
+import { apiUrl } from "../lib/api.js";
 import { createId, formatPrice } from "../lib/format.js";
 import { ImageZoom } from "../components/ProductMedia.jsx";
 import ProductCard from "../components/ProductCard.jsx";
@@ -484,7 +485,7 @@ export function CheckoutPage() {
   });
 
   useEffect(() => {
-    fetch("/api/health")
+    fetch(apiUrl("/api/health"))
       .then((r) => r.json())
       .then((data) => {
         if (data.ok) {
@@ -574,7 +575,7 @@ export function CheckoutPage() {
     setSubmitting(true);
     try {
       if (form.payment === "COD") {
-        const res = await fetch("/api/orders/cod", {
+        const res = await fetch(apiUrl("/api/orders/cod"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -589,7 +590,7 @@ export function CheckoutPage() {
       }
 
       if (form.payment === "UPI QR Code") {
-        const res = await fetch("/api/orders/upi-qr", {
+        const res = await fetch(apiUrl("/api/orders/upi-qr"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -607,7 +608,7 @@ export function CheckoutPage() {
       const loaded = await loadRazorpayScript();
       if (!loaded) throw new Error("Unable to load Razorpay Checkout SDK. Check your internet connection.");
 
-      const orderRes = await fetch("/api/payments/razorpay/create-order", {
+      const orderRes = await fetch(apiUrl("/api/payments/razorpay/create-order"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -626,7 +627,7 @@ export function CheckoutPage() {
         theme: { color: "#c9aa70" },
         handler: async (response) => {
           try {
-            const verifyRes = await fetch("/api/payments/razorpay/verify", {
+            const verifyRes = await fetch(apiUrl("/api/payments/razorpay/verify"), {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(response),
