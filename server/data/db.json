@@ -1,0 +1,173 @@
+{
+  "orderCounter": 2,
+  "orders": [
+    {
+      "id": "SSW-2026-00002",
+      "userId": "local-1794478885949",
+      "createdAt": "2026-11-12T13:27:36.256Z",
+      "updatedAt": "2026-11-12T13:28:26.507Z",
+      "customer": {
+        "name": "aditi darp",
+        "phone": "9325431535",
+        "email": "aditidarp@gmail.com",
+        "address": "jljhfiaehfiapefj",
+        "city": "Chhatrapati Sambhajinagar",
+        "pin": "431001"
+      },
+      "items": [
+        {
+          "productId": "formal-shirt",
+          "name": "Formal Shirts",
+          "category": "Formal Shirts",
+          "colour": "Black",
+          "image": "/images/products/shirts/black-front.jpeg",
+          "configuration": {
+            "fit": "Slim",
+            "fabricType": "Fine cotton",
+            "collar": "Spread",
+            "cuff": "Single button",
+            "buttons": "Mother of pearl",
+            "pocket": "No pocket",
+            "sleeve": "Full sleeve",
+            "shirtLength": "Regular",
+            "monogram": "",
+            "fabricBrand": "Raymond",
+            "size": "Made to measure",
+            "measurements": {
+              "chest": "",
+              "waist": "",
+              "shoulder": "",
+              "sleeve": "",
+              "neck": "",
+              "jacketLength": "",
+              "hip": "",
+              "inseam": "",
+              "unit": "inches"
+            }
+          },
+          "price": 2000,
+          "key": "line-mwdl0mgs-01rrx",
+          "quantity": 1
+        }
+      ],
+      "subtotal": 2000,
+      "discount": 200,
+      "codCharge": 0,
+      "couponCode": "FIRSTORDER",
+      "total": 1800,
+      "paymentMethod": "UPI QR Code",
+      "paymentReference": null,
+      "paymentStatus": "Payment Confirmed",
+      "status": "Payment Confirmed / COD Order Confirmed",
+      "expectedDeliveryDate": null,
+      "internalNotes": "Awaiting UPI QR verification",
+      "statusHistory": [
+        {
+          "status": "Order Placed",
+          "paymentStatus": "Pending Verification",
+          "timestamp": "2026-11-12T13:27:36.256Z",
+          "updatedBy": "Customer Checkout",
+          "note": "Direct UPI QR submitted — awaiting merchant transaction verification"
+        },
+        {
+          "status": "Payment Confirmed / COD Order Confirmed",
+          "paymentStatus": "Payment Confirmed",
+          "timestamp": "2026-11-12T13:28:26.507Z",
+          "updatedBy": "shivaji@ssawant.in",
+          "note": "UPI payment verified by administrator"
+        }
+      ]
+    },
+    {
+      "id": "SSW-2026-00001",
+      "userId": "local-1794478885949",
+      "createdAt": "2026-11-12T11:05:25.920Z",
+      "updatedAt": "2026-11-12T11:07:05.597Z",
+      "customer": {
+        "name": "aditi darp",
+        "phone": "9325431535",
+        "email": "aditidarp@gmail.com",
+        "address": "jkbbbbbbbbb",
+        "city": "Chhatrapati Sambhajinagar",
+        "pin": "431001"
+      },
+      "items": [
+        {
+          "productId": "formal-shirt",
+          "name": "Formal Shirts",
+          "category": "Formal Shirts",
+          "colour": "Black",
+          "image": "/images/products/shirts/black-front.jpeg",
+          "configuration": {
+            "fit": "Slim",
+            "fabricType": "Fine cotton",
+            "collar": "Spread",
+            "cuff": "Single button",
+            "buttons": "Mother of pearl",
+            "pocket": "No pocket",
+            "sleeve": "Full sleeve",
+            "shirtLength": "Regular",
+            "monogram": "",
+            "fabricBrand": "Raymond",
+            "size": "Made to measure",
+            "measurements": {
+              "chest": "",
+              "waist": "",
+              "shoulder": "",
+              "sleeve": "",
+              "neck": "",
+              "jacketLength": "",
+              "hip": "",
+              "inseam": "",
+              "unit": "inches"
+            }
+          },
+          "price": 2000,
+          "key": "line-mwdftxbg-seqkq",
+          "quantity": 1
+        }
+      ],
+      "subtotal": 2000,
+      "discount": 200,
+      "codCharge": 0,
+      "couponCode": "FIRSTORDER",
+      "total": 1800,
+      "paymentMethod": "UPI QR Code",
+      "paymentReference": null,
+      "paymentStatus": "Payment Confirmed",
+      "status": "Payment Confirmed / COD Order Confirmed",
+      "expectedDeliveryDate": null,
+      "internalNotes": "Awaiting UPI QR verification",
+      "statusHistory": [
+        {
+          "status": "Order Placed",
+          "paymentStatus": "Pending Verification",
+          "timestamp": "2026-11-12T11:05:25.920Z",
+          "updatedBy": "Customer Checkout",
+          "note": "Direct UPI QR submitted — awaiting merchant transaction verification"
+        },
+        {
+          "status": "Payment Confirmed / COD Order Confirmed",
+          "paymentStatus": "Pending Verification",
+          "timestamp": "2026-11-12T11:06:58.529Z",
+          "updatedBy": "shivaji@ssawant.in",
+          "note": ""
+        },
+        {
+          "status": "Payment Confirmed / COD Order Confirmed",
+          "paymentStatus": "Payment Confirmed",
+          "timestamp": "2026-11-12T11:07:05.597Z",
+          "updatedBy": "shivaji@ssawant.in",
+          "note": "UPI payment verified by administrator"
+        }
+      ]
+    }
+  ],
+  "pendingPayments": {},
+  "processedPaymentIds": [],
+  "settings": {
+    "codEnabled": true,
+    "codCharge": 0,
+    "upiId": "omawant170604@okicici"
+  }
+}
