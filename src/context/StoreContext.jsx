@@ -40,13 +40,14 @@ export function StoreProvider({ children }) {
   // Merges products with seed defaults so missing images or new products stay intact
   const mergeProducts = useCallback((incomingProducts) => {
     if (!Array.isArray(incomingProducts) || !incomingProducts.length) return INITIAL_PRODUCTS;
-    const seedImages = new Map(INITIAL_PRODUCTS.map((product) => [product.id, product.images]));
+    const seedImages = new Map(INITIAL_PRODUCTS.map((product) => [product.id, product.images || {}]));
     const merged = incomingProducts.map((product) => {
-      const defaults = seedImages.get(product.id);
-      if (!defaults) return product;
-      const images = { ...defaults, ...product.images };
-      for (const [colour, views] of Object.entries(defaults)) {
-        images[colour] = { ...views, ...product.images?.[colour] };
+      const defaults = seedImages.get(product.id) || {};
+      const images = { ...defaults };
+      if (product.images && typeof product.images === "object") {
+        for (const [colour, views] of Object.entries(product.images)) {
+          images[colour] = { ...(images[colour] || {}), ...(views || {}) };
+        }
       }
       return { ...product, images };
     });

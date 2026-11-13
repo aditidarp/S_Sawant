@@ -136,6 +136,7 @@ function ImageManager({ products, onUpdate }) {
   const product = products.find((item) => item.id === productId) || products[0];
   const [colour, setColour] = useState(product?.defaultColour || "");
   const [view, setView] = useState("front");
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -150,6 +151,7 @@ function ImageManager({ products, onUpdate }) {
       setError("Choose an image file (JPEG, PNG or WebP).");
       return;
     }
+    setUploading(true);
     try {
       const dataUrl = await localImageToDataUrl(file);
       const updated = {
@@ -159,11 +161,13 @@ function ImageManager({ products, onUpdate }) {
           [colour]: { ...(product.images?.[colour] || {}), [view]: dataUrl },
         },
       };
-      onUpdate(updated);
+      await onUpdate(updated);
       setError("");
       event.target.value = "";
     } catch (problem) {
       setError(`Image could not be uploaded: ${problem.message}`);
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -174,15 +178,19 @@ function ImageManager({ products, onUpdate }) {
     <section className="admin-panel">
       <span className="eyebrow">Verified product photography</span>
       <h2>Colour image library</h2>
-      <p className="admin-subcopy">Each colour and angle is independent. Upload photographs for each garment variant. Images are permanently saved in the database.</p>
+      <p className="admin-subcopy">Each colour and angle is independent. Upload photographs for each garment variant. Images are automatically saved to the central database and synchronized across all devices.</p>
       <div className="admin-fields-grid">
         <label className="field-control"><span>Product</span><select value={product.id} onChange={(event) => setProductId(event.target.value)}>{products.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
         <label className="field-control"><span>Colour variant</span><select value={colour} onChange={(event) => setColour(event.target.value)}>{product.colours.map((item) => <option key={item}>{item}</option>)}</select></label>
         <label className="field-control"><span>View</span><select value={view} onChange={(event) => setView(event.target.value)}>{VIEWS.map((item) => <option key={item} value={item}>{item[0].toUpperCase() + item.slice(1)}</option>)}</select></label>
       </div>
       <div className="admin-photo-preview">{existing ? <img src={existing} alt={`${product.name} ${colour} ${view}`} /> : <ImagePlaceholder colour={colour} view={view} />}</div>
-      <label className="button button-outline upload-control"><ImagePlus size={15} /> Upload {colour} {view} photo<input type="file" accept="image/*" onChange={upload} /></label>
-      {existing && <button type="button" className="text-button delete-image" onClick={() => { const images = { ...product.images, [colour]: { ...product.images[colour] } }; delete images[colour][view]; if (!Object.keys(images[colour]).length) delete images[colour]; onUpdate({ ...product, images }); }}>Remove this image</button>}
+      <label className="button button-gold upload-control" style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}>
+        {uploading ? <Loader2 size={15} className="spin-icon" /> : <ImagePlus size={15} />}
+        <span>{uploading ? "Uploading & Saving to Database..." : `Upload ${colour} ${view} Photo`}</span>
+        <input type="file" accept="image/*" onChange={upload} disabled={uploading} style={{ display: "none" }} />
+      </label>
+      {existing && <button type="button" className="text-button delete-image" style={{ marginLeft: 12 }} onClick={async () => { const images = { ...product.images, [colour]: { ...product.images[colour] } }; delete images[colour][view]; if (!Object.keys(images[colour]).length) delete images[colour]; await onUpdate({ ...product, images }); }}>Remove this image</button>}
       {error && <p className="form-error">{error}</p>}
     </section>
   );
