@@ -249,15 +249,53 @@ export const repository = {
 };
 
 /**
- * Converts a selected image File or Blob to a persistent Base64 Data URL
- * suitable for database storage and cross-device rendering.
+ * Converts and optimizes an image File or Blob from mobile or desktop
+ * into a high-clarity web-optimized Data URL (max 1600px, 85% quality)
+ * suitable for instant database synchronization across all devices.
  */
-export function localImageToDataUrl(file) {
+export function localImageToDataUrl(file, maxWidth = 1600, maxHeight = 1600, quality = 0.85) {
   return new Promise((resolve, reject) => {
     if (!file) return reject(new Error("No file provided"));
     const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(reader.error || new Error("Could not read the selected image."));
+    reader.onerror = () => reject(reader.error || new Error("Could not read image file."));
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Could not decode image format."));
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Export as WebP if supported, otherwise standard JPEG
+        try {
+          const webpData = canvas.toDataURL("image/webp", quality);
+          if (webpData.startsWith("data:image/webp")) {
+            return resolve(webpData);
+          }
+        } catch {
+          // fallback to jpeg
+        }
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = String(e.target.result);
+    };
     reader.readAsDataURL(file);
   });
 }
