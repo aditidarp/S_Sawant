@@ -1,0 +1,2 @@
+# Protect database json files from direct web access
+Deny from all

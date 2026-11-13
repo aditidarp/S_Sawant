@@ -269,8 +269,16 @@ export function ProductConfigurator({ product, onAdd, onBook, initialColour }) {
           </div>
 
           <div className="purchase-actions">
-            <button type="submit" className="button button-gold">Add to Cart <ArrowRight size={15} /></button>
-            <button type="button" className="button button-outline" onClick={handleBuyNow}><Zap size={14} /> Buy Now</button>
+            {product.inStock === false ? (
+              <button type="button" className="button button-gold" disabled style={{ opacity: 0.65, cursor: "not-allowed", background: "rgba(127, 29, 29, 0.85)", borderColor: "#ef4444" }}>
+                Currently Out of Stock
+              </button>
+            ) : (
+              <>
+                <button type="submit" className="button button-gold">Add to Cart <ArrowRight size={15} /></button>
+                <button type="button" className="button button-outline" onClick={handleBuyNow}><Zap size={14} /> Buy Now</button>
+              </>
+            )}
             <button type="button" className="button button-outline" onClick={onBook}>Book Appointment</button>
           </div>
         </form>

@@ -1,0 +1,70 @@
+{
+  "version": 1794558284097,
+  "updatedAt": "2026-11-13T08:24:44.097Z",
+  "updatedBy": "System Initializer",
+  "siteConfig": {
+    "heroEyebrow": "The art of fine tailoring · Chhatrapati Sambhajinagar",
+    "heroTitle": "Timeless elegance.",
+    "heroTitleAccent": "Tailored for you.",
+    "heroSubtitle": "Experience the art of bespoke Indian menswear with considered fabrics, thoughtful details and a fit that feels unmistakably yours.",
+    "heroImage": "/images/editorial/hero-bespoke.jpg",
+    "openingHours": "Monday – Saturday: 10:00 AM – 8:00 PM · Sunday: By Appointment",
+    "upiId": "omawant170604@okicici",
+    "announcementText": "Complimentary delivery over ₹10,000 ✦ Bespoke Indian Menswear · Chhatrapati Sambhajinagar",
+    "announcementEnabled": true,
+    "announcementLink": "/shop",
+    "promotionalBannerText": "Wedding & Festive Season Atelier Booking Open",
+    "promotionalBannerActive": true,
+    "contactPhone": "+91 83088 78204",
+    "contactEmail": "contact@ssawant.in",
+    "contactAddress": "Opp. Tapadiya Park, Town Centre, CIDCO, Chhatrapati Sambhajinagar, Maharashtra 431003",
+    "categoryImages": {
+      "shirts": "/images/products/shirts/black-front.jpeg",
+      "trousers": "/images/products/trousers/light-grey-front.jpeg",
+      "blazers": "/images/editorial/hero-bespoke.jpg",
+      "two-piece-suits": "/images/products/suits/navy-two-piece-front.jpeg",
+      "three-piece-suits": "/images/products/waistcoats/navy-front.jpeg",
+      "kurtas": "/images/products/kurtas/ivory-front.png",
+      "waistcoats": "/images/products/waistcoats/navy-front.jpeg",
+      "wedding-collection": "/images/editorial/hero-bespoke.jpg"
+    }
+  },
+  "products": [],
+  "fabricBrands": [
+    "Raymond",
+    "Siyaram's",
+    "Arvind Mills",
+    "Linen Club",
+    "J. Hampstead",
+    "Graviera"
+  ],
+  "fabricCatalog": [],
+  "pricing": {
+    "fabricPremiums": {
+      "Raymond": 0,
+      "Siyaram's": 0,
+      "Arvind Mills": 0,
+      "Linen Club": 0,
+      "J. Hampstead": 0,
+      "Graviera": 0
+    },
+    "optionPremiums": {
+      "premiumButtons": 0,
+      "lining": 0,
+      "embroidery": 0,
+      "monogram": 0
+    },
+    "priceRules": [],
+    "coupons": [
+      {
+        "code": "SAWANT10",
+        "discountPercent": 10,
+        "active": true,
+        "description": "10% off your bespoke order"
+      }
+    ]
+  },
+  "orders": [],
+  "appointments": [],
+  "customers": []
+}

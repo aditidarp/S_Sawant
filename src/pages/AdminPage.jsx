@@ -1,5 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowDownToLine, CheckCircle2, ImagePlus, Lock, LogOut, Plus, Save, Trash2, XCircle } from "lucide-react";
+import {
+  ArrowDownToLine,
+  CheckCircle2,
+  ImagePlus,
+  Layers,
+  Loader2,
+  Lock,
+  LogOut,
+  Megaphone,
+  Plus,
+  RefreshCw,
+  Save,
+  Sparkles,
+  Store,
+  Trash2,
+  UploadCloud,
+  XCircle,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CATEGORIES, ORDER_STATUSES, SUIT_COLOURS } from "../data/products.js";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -9,7 +26,7 @@ import { createId, formatPrice } from "../lib/format.js";
 import { localImageToDataUrl } from "../services/repository.js";
 import { ImagePlaceholder } from "../components/ProductMedia.jsx";
 
-const TABS = ["Overview", "Products", "Images", "Fabrics", "Pricing & Coupons", "Orders", "Appointments", "Customers", "Homepage"];
+const TABS = ["Overview", "Products", "Images", "Fabrics", "Pricing & Coupons", "Orders", "Appointments", "Customers", "Homepage & Content"];
 const VIEWS = ["front", "back", "detail", "fabric"];
 
 function isSuit(product) {
@@ -35,7 +52,7 @@ function startingProduct() {
   };
 }
 
-function ProductEditor({ product, onSave, onDelete, onNew, fabricBrands }) {
+function ProductEditor({ product, onSave, onDelete, onNew, fabricBrands, isSaving }) {
   const [form, setForm] = useState(product);
   const [optionsText, setOptionsText] = useState(JSON.stringify(product.options || [], null, 2));
   const [error, setError] = useState("");
@@ -106,7 +123,10 @@ function ProductEditor({ product, onSave, onDelete, onNew, fabricBrands }) {
         <label className="field-control field-control-full"><span>Customisation fields · JSON</span><textarea className="json-editor" spellCheck="false" value={optionsText} onChange={(event) => setOptionsText(event.target.value)} /></label>
       </div>
       {error && <p className="form-error">{error}</p>}
-      <button className="button button-gold" type="submit"><Save size={14} /> Save product</button>
+      <button className="button button-gold" type="submit" disabled={isSaving} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+        {isSaving ? <Loader2 size={14} className="spin-icon" /> : <Save size={14} />}
+        {isSaving ? "Saving to Database..." : "Save Product to Database"}
+      </button>
     </form>
   );
 }
@@ -154,7 +174,7 @@ function ImageManager({ products, onUpdate }) {
     <section className="admin-panel">
       <span className="eyebrow">Verified product photography</span>
       <h2>Colour image library</h2>
-      <p className="admin-subcopy">Each colour and angle is independent. Upload photographs for each garment variant.</p>
+      <p className="admin-subcopy">Each colour and angle is independent. Upload photographs for each garment variant. Images are permanently saved in the database.</p>
       <div className="admin-fields-grid">
         <label className="field-control"><span>Product</span><select value={product.id} onChange={(event) => setProductId(event.target.value)}>{products.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
         <label className="field-control"><span>Colour variant</span><select value={colour} onChange={(event) => setColour(event.target.value)}>{product.colours.map((item) => <option key={item}>{item}</option>)}</select></label>
@@ -168,16 +188,35 @@ function ImageManager({ products, onUpdate }) {
   );
 }
 
-function FabricManager({ fabricBrands, setFabricBrands, fabricCatalog, setFabricCatalog, setProducts, notify }) {
+function FabricManager({ fabricBrands, setFabricBrands, fabricCatalog, setFabricCatalog, setProducts, notify, saveToDatabase, isSaving }) {
   const [brandsText, setBrandsText] = useState(fabricBrands.join(", "));
   const [newSwatch, setNewSwatch] = useState({ brand: fabricBrands[0] || "Raymond", name: "", type: "Wool", colour: "Navy Blue", hex: "#1e2d4a", price: 1500, description: "" });
 
-  function addSwatch(e) {
+  async function addSwatch(e) {
     e.preventDefault();
     if (!newSwatch.name.trim()) return;
-    setFabricCatalog((prev) => [{ ...newSwatch, id: createId("fab"), available: true, price: Number(newSwatch.price) || 0, categories: CATEGORIES.map((c) => c.id) }, ...prev]);
+    const nextCatalog = [{ ...newSwatch, id: createId("fab"), available: true, price: Number(newSwatch.price) || 0, categories: CATEGORIES.map((c) => c.id) }, ...fabricCatalog];
+    setFabricCatalog(nextCatalog);
     setNewSwatch({ ...newSwatch, name: "", description: "" });
-    notify("Fabric swatch added.");
+    try {
+      await saveToDatabase("fabricCatalog", nextCatalog);
+      notify("Fabric swatch added & saved to database.");
+    } catch {
+      // notification handled
+    }
+  }
+
+  async function saveBrands() {
+    const brands = [...new Set(brandsText.split(",").map((b) => b.trim()).filter(Boolean))];
+    if (!brands.length) return notify("At least one fabric house is required.");
+    setFabricBrands(brands);
+    const nextProducts = (products) => products.map((item) => ({ ...item, fabrics: brands }));
+    try {
+      await saveToDatabase("fabricBrands", brands);
+      notify("Fabric houses saved to database.");
+    } catch {
+      // notification handled
+    }
   }
 
   return (
@@ -186,13 +225,9 @@ function FabricManager({ fabricBrands, setFabricBrands, fabricCatalog, setFabric
         <span className="eyebrow">Supplier catalogue</span>
         <h2>Fabric Houses</h2>
         <label className="field-control"><span>Fabric brands · comma separated</span><textarea value={brandsText} onChange={(e) => setBrandsText(e.target.value)} /></label>
-        <button className="button button-outline" style={{ marginTop: 12 }} onClick={() => {
-          const brands = [...new Set(brandsText.split(",").map((b) => b.trim()).filter(Boolean))];
-          if (!brands.length) return notify("At least one fabric house is required.");
-          setFabricBrands(brands);
-          setProducts((curr) => curr.map((item) => ({ ...item, fabrics: brands })));
-          notify("Fabric houses updated.");
-        }}>Save Fabric Houses <Save size={14} /></button>
+        <button className="button button-gold" style={{ marginTop: 12 }} onClick={saveBrands} disabled={isSaving}>
+          <Save size={14} /> Save Fabric Houses to Database
+        </button>
 
         <h3 style={{ marginTop: 28 }}>Add Fabric Swatch</h3>
         <form className="admin-rule-form" onSubmit={addSwatch}>
@@ -202,7 +237,7 @@ function FabricManager({ fabricBrands, setFabricBrands, fabricCatalog, setFabric
           <label className="field-control"><span>Colour</span><input required value={newSwatch.colour} onChange={(e) => setNewSwatch({ ...newSwatch, colour: e.target.value })} /></label>
           <label className="field-control"><span>Swatch Hex</span><input type="color" value={newSwatch.hex} onChange={(e) => setNewSwatch({ ...newSwatch, hex: e.target.value })} /></label>
           <label className="field-control"><span>Additional Charge (INR)</span><input type="number" min="0" step="100" value={newSwatch.price} onChange={(e) => setNewSwatch({ ...newSwatch, price: e.target.value })} /></label>
-          <button className="button button-gold" type="submit"><Plus size={14} /> Add Swatch</button>
+          <button className="button button-gold" type="submit" disabled={isSaving}><Plus size={14} /> Add Swatch to Database</button>
         </form>
       </section>
 
@@ -218,10 +253,19 @@ function FabricManager({ fabricBrands, setFabricBrands, fabricCatalog, setFabric
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <strong>{formatPrice(fab.price)}</strong>
-                <button type="button" className="text-button" onClick={() => setFabricCatalog((prev) => prev.map((f) => f.id === fab.id ? { ...f, available: !f.available } : f))}>
+                <button type="button" className="text-button" onClick={async () => {
+                  const nextCatalog = fabricCatalog.map((f) => f.id === fab.id ? { ...f, available: !f.available } : f);
+                  setFabricCatalog(nextCatalog);
+                  await saveToDatabase("fabricCatalog", nextCatalog);
+                }}>
                   {fab.available ? "In Stock" : "Paused"}
                 </button>
-                <button type="button" className="icon-control admin-delete" onClick={() => setFabricCatalog((prev) => prev.filter((f) => f.id !== fab.id))} aria-label="Remove swatch"><Trash2 size={15} /></button>
+                <button type="button" className="icon-control admin-delete" onClick={async () => {
+                  const nextCatalog = fabricCatalog.filter((f) => f.id !== fab.id);
+                  setFabricCatalog(nextCatalog);
+                  await saveToDatabase("fabricCatalog", nextCatalog);
+                  notify("Swatch removed from database.");
+                }} aria-label="Remove swatch"><Trash2 size={15} /></button>
               </div>
             </div>
           ))}
@@ -231,7 +275,7 @@ function FabricManager({ fabricBrands, setFabricBrands, fabricCatalog, setFabric
   );
 }
 
-function PricingManager({ products, fabricBrands, pricing, onProducts, onPricing, notify }) {
+function PricingManager({ products, fabricBrands, pricing, onProducts, onPricing, notify, saveToDatabase, isSaving }) {
   const [ruleType, setRuleType] = useState("fabric");
   const [ruleName, setRuleName] = useState("");
   const [ruleValue, setRuleValue] = useState("");
@@ -240,7 +284,7 @@ function PricingManager({ products, fabricBrands, pricing, onProducts, onPricing
   const [couponPct, setCouponPct] = useState(10);
   const [error, setError] = useState("");
 
-  function addRule(event) {
+  async function addRule(event) {
     event.preventDefault();
     if ((!ruleName.trim() && ruleType === "option") || !ruleValue.trim() || Number(ruleAmount) < 0) {
       setError("Choose a rule name and non-negative amount.");
@@ -249,29 +293,57 @@ function PricingManager({ products, fabricBrands, pricing, onProducts, onPricing
     const key = ruleType === "fabric" ? `fabric:${ruleValue}` : `option:${ruleName}:${ruleValue}`;
     const next = (pricing.priceRules || []).filter((rule) => rule.key !== key);
     next.push({ key, label: ruleType === "fabric" ? `Fabric: ${ruleValue}` : `${ruleName}: ${ruleValue}`, amount: Number(ruleAmount) });
-    onPricing({ ...pricing, priceRules: next });
+    const updatedPricing = { ...pricing, priceRules: next };
+    onPricing(updatedPricing);
     setRuleName("");
     setRuleAmount(0);
     setError("");
-    notify("Price rule saved.");
+    try {
+      await saveToDatabase("pricing", updatedPricing);
+      notify("Price rule saved to database.");
+    } catch {
+      // handled
+    }
   }
 
-  function addCoupon(e) {
+  async function addCoupon(e) {
     e.preventDefault();
     if (!couponCode.trim()) return;
     const code = couponCode.trim().toUpperCase();
     const next = (pricing.coupons || []).filter((c) => c.code !== code);
-    next.push({ code, discountPercent: Number(couponPct) || 10, active: true });
-    onPricing({ ...pricing, coupons: next });
+    next.push({ code, discountPercent: Number(couponPct) || 10, active: true, description: `${couponPct}% discount code` });
+    const updatedPricing = { ...pricing, coupons: next };
+    onPricing(updatedPricing);
     setCouponCode("");
-    notify(`Coupon ${code} saved.`);
+    try {
+      await saveToDatabase("pricing", updatedPricing);
+      notify(`Coupon ${code} saved to database.`);
+    } catch {
+      // handled
+    }
+  }
+
+  async function handleSavePricing() {
+    try {
+      await Promise.all([
+        saveToDatabase("pricing", pricing),
+        saveToDatabase("products", products),
+      ]);
+      notify("All base prices and pricing rules saved to database.");
+    } catch {
+      // handled
+    }
   }
 
   return (
     <div className="admin-pricing-layout">
       <section className="admin-panel">
-        <span className="eyebrow">Price book</span>
-        <h2>Base Prices</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <div><span className="eyebrow">Price book</span><h2>Base Prices</h2></div>
+          <button className="button button-gold" onClick={handleSavePricing} disabled={isSaving} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <Save size={14} /> Save Prices to Database
+          </button>
+        </div>
         {products.map((product) => (
           <label className="price-edit-row" key={product.id}>
             <span>{product.name}<small>{product.category}</small></span>
@@ -279,17 +351,23 @@ function PricingManager({ products, fabricBrands, pricing, onProducts, onPricing
           </label>
         ))}
 
-        <h3 style={{ marginTop: 28 }}>Discount Coupons</h3>
+        <h3 style={{ marginTop: 28 }}>Discount Coupons &amp; Offers</h3>
         <form className="admin-rule-form" onSubmit={addCoupon}>
           <label className="field-control"><span>Coupon Code</span><input value={couponCode} onChange={(e) => setCouponCode(e.target.value)} placeholder="e.g. FESTIVE15" /></label>
           <label className="field-control"><span>Discount %</span><input type="number" min="1" max="90" value={couponPct} onChange={(e) => setCouponPct(e.target.value)} /></label>
-          <button className="button button-outline" type="submit"><Plus size={14} /> Add Coupon</button>
+          <button className="button button-outline" type="submit" disabled={isSaving}><Plus size={14} /> Add Coupon</button>
         </form>
         <div className="price-rules-list">
           {(pricing.coupons || []).map((c) => (
             <div className="price-edit-row" key={c.code}>
-              <span>{c.code}<small>{c.discountPercent}% off</small></span>
-              <button type="button" className="icon-control admin-delete" onClick={() => onPricing({ ...pricing, coupons: pricing.coupons.filter((x) => x.code !== c.code) })}><Trash2 size={15} /></button>
+              <span>{c.code}<small>{c.discountPercent}% off {c.active ? "· Active" : "· Inactive"}</small></span>
+              <button type="button" className="icon-control admin-delete" onClick={async () => {
+                const nextCoupons = pricing.coupons.filter((x) => x.code !== c.code);
+                const nextPricing = { ...pricing, coupons: nextCoupons };
+                onPricing(nextPricing);
+                await saveToDatabase("pricing", nextPricing);
+                notify(`Coupon ${c.code} deleted.`);
+              }}><Trash2 size={15} /></button>
             </div>
           ))}
         </div>
@@ -309,7 +387,7 @@ function PricingManager({ products, fabricBrands, pricing, onProducts, onPricing
             </>
           )}
           <label className="field-control"><span>Additional amount · INR</span><input type="number" min="0" step="100" value={ruleAmount} onChange={(event) => setRuleAmount(event.target.value)} /></label>
-          <button className="button button-gold" type="submit"><Plus size={14} /> Save price rule</button>
+          <button className="button button-gold" type="submit" disabled={isSaving}><Plus size={14} /> Save Price Rule to Database</button>
           {error && <p className="form-error">{error}</p>}
         </form>
         <div className="price-rules-list">
@@ -317,9 +395,14 @@ function PricingManager({ products, fabricBrands, pricing, onProducts, onPricing
             <div className="price-edit-row" key={rule.key}>
               <span>{rule.label}<small>{rule.key}</small></span>
               <strong>+ {formatPrice(rule.amount)}</strong>
-              <button className="icon-control admin-delete" onClick={() => onPricing({ ...pricing, priceRules: pricing.priceRules.filter((r) => r.key !== rule.key) })} aria-label={`Remove ${rule.label}`}><Trash2 size={15} /></button>
+              <button className="icon-control admin-delete" onClick={async () => {
+                const nextRules = pricing.priceRules.filter((r) => r.key !== rule.key);
+                const nextPricing = { ...pricing, priceRules: nextRules };
+                onPricing(nextPricing);
+                await saveToDatabase("pricing", nextPricing);
+              }} aria-label={`Remove ${rule.label}`}><Trash2 size={15} /></button>
             </div>
-          )) : <p className="empty-note">No premiums configured. Fabric and finish selections currently add ₹0.</p>}
+          )) : <p className="empty-note">No price rules added yet.</p>}
         </div>
       </section>
     </div>
@@ -327,8 +410,7 @@ function PricingManager({ products, fabricBrands, pricing, onProducts, onPricing
 }
 
 export default function AdminPage() {
-  const { isAuthenticated, isAdmin, user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const {
     products, setProducts,
     fabricBrands, setFabricBrands,
@@ -337,44 +419,81 @@ export default function AdminPage() {
     siteConfig, setSiteConfig,
     orders, setOrders,
     appointments, setAppointments,
+    customers,
     notify,
+    syncStatus,
+    isSaving,
+    lastSyncedAt,
+    dbVersion,
+    saveToDatabase,
+    publishAll,
+    refreshFromDatabase,
   } = useStore();
+  const navigate = useNavigate();
 
   const [tab, setTab] = useState("Overview");
-  const [selectedId, setSelectedId] = useState(products[0]?.id);
+  const [selectedId, setSelectedId] = useState(products[0]?.id || "");
   const selectedProduct = products.find((item) => item.id === selectedId) || products[0];
 
-  const [serverOrders, setServerOrders] = useState([]);
-  const [codSettings, setCodSettings] = useState({ codEnabled: true, codCharge: 0 });
   const [orderSearch, setOrderSearch] = useState("");
   const [filterMethod, setFilterMethod] = useState("");
   const [filterPayStatus, setFilterPayStatus] = useState("");
   const [filterOrderStatus, setFilterOrderStatus] = useState("");
   const [expandedHistoryId, setExpandedHistoryId] = useState(null);
+  const [codSettings, setCodSettings] = useState({ codEnabled: true, codCharge: 0, upiId: "omawant170604@okicici" });
+  const [serverOrders, setServerOrders] = useState([]);
 
   useEffect(() => {
-    if (!isAuthenticated || !isAdmin || !user?.email) return;
-    fetch(apiUrl("/api/admin/orders"), {
-      headers: { "X-Admin-Role": "admin", "X-Admin-Email": user.email },
-    })
-      .then((r) => r.json())
-      .then((d) => {
-        if (Array.isArray(d.orders)) setServerOrders(d.orders);
-        if (d.settings) setCodSettings({ codEnabled: d.settings.codEnabled !== false, codCharge: Number(d.settings.codCharge || 0) });
-      })
-      .catch(() => {});
-  }, [isAuthenticated, isAdmin, user?.email, tab]);
+    let active = true;
+    async function fetchBackendState() {
+      try {
+        const res = await fetch(apiUrl("/api/health"));
+        const data = await res.json();
+        if (active && data.ok) {
+          setCodSettings({
+            codEnabled: data.codEnabled ?? true,
+            codCharge: data.codCharge ?? 0,
+            upiId: data.upiId || "omawant170604@okicici",
+          });
+        }
+      } catch { /* ignore */ }
 
-  const allOrders = serverOrders.length ? serverOrders : orders;
+      try {
+        const res = await fetch(apiUrl("/api/admin/orders"), {
+          headers: {
+            "X-Admin-Role": "admin",
+            "X-Admin-Email": user?.email || "admin",
+          },
+        });
+        const data = await res.json();
+        if (active && data.orders && Array.isArray(data.orders)) {
+          setServerOrders(data.orders);
+        }
+      } catch { /* ignore */ }
+    }
+    fetchBackendState();
+    return () => { active = false; };
+  }, [user]);
+
+  const allOrders = useMemo(() => {
+    const map = new Map();
+    for (const o of orders) map.set(o.id, o);
+    for (const o of serverOrders) map.set(o.id, { ...(map.get(o.id) || {}), ...o });
+    return Array.from(map.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, [orders, serverOrders]);
 
   const filteredOrders = useMemo(() => {
-    return allOrders.filter((o) => {
-      const q = orderSearch.trim().toLowerCase();
-      const matchQ = !q || o.id?.toLowerCase().includes(q) || o.customer?.name?.toLowerCase().includes(q) || o.customer?.phone?.toLowerCase().includes(q);
-      const matchMethod = !filterMethod || (o.paymentMethod || o.customer?.payment || "") === filterMethod;
-      const matchPay = !filterPayStatus || (o.paymentStatus || "") === filterPayStatus;
-      const matchStatus = !filterOrderStatus || o.status === filterOrderStatus;
-      return matchQ && matchMethod && matchPay && matchStatus;
+    return allOrders.filter((order) => {
+      const q = orderSearch.toLowerCase();
+      const matchesSearch = !q ||
+        order.id?.toLowerCase().includes(q) ||
+        order.customer?.name?.toLowerCase().includes(q) ||
+        order.customer?.phone?.includes(q) ||
+        order.customer?.email?.toLowerCase().includes(q);
+      const matchesMethod = !filterMethod || (order.paymentMethod || order.customer?.payment) === filterMethod;
+      const matchesPay = !filterPayStatus || order.paymentStatus === filterPayStatus;
+      const matchesOrder = !filterOrderStatus || order.status === filterOrderStatus;
+      return matchesSearch && matchesMethod && matchesPay && matchesOrder;
     });
   }, [allOrders, orderSearch, filterMethod, filterPayStatus, filterOrderStatus]);
 
@@ -413,23 +532,40 @@ export default function AdminPage() {
     );
   }
 
-  function saveProduct(product) {
+  async function saveProduct(product) {
     const exists = products.some((item) => item.id === product.id);
-    setProducts(exists ? products.map((item) => item.id === product.id ? product : item) : [...products, product]);
+    const next = exists ? products.map((item) => item.id === product.id ? product : item) : [...products, product];
+    setProducts(next);
     setSelectedId(product.id);
-    notify("Product saved.");
+    try {
+      await saveToDatabase("products", next);
+    } catch {
+      // notification handled in saveToDatabase
+    }
   }
 
-  function updateProduct(product) {
-    setProducts((current) => current.map((item) => item.id === product.id ? product : item));
+  async function updateProduct(product) {
+    const next = products.map((item) => item.id === product.id ? product : item);
+    setProducts(next);
+    try {
+      await saveToDatabase("products", next);
+      notify("Product updated in database.");
+    } catch {
+      // notification handled
+    }
   }
 
-  function removeProduct(id) {
-    if (!window.confirm("Remove this product from the catalogue?")) return;
+  async function removeProduct(id) {
+    if (!window.confirm("Remove this product permanently from the database?")) return;
     const next = products.filter((item) => item.id !== id);
     setProducts(next);
-    setSelectedId(next[0]?.id);
-    notify("Product removed.");
+    setSelectedId(next[0]?.id || "");
+    try {
+      await saveToDatabase("products", next);
+      notify("Product removed from database.");
+    } catch {
+      // notification handled
+    }
   }
 
   async function patchOrder(orderId, updates, successMsg) {
@@ -446,11 +582,14 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok && data.order) {
         setServerOrders((prev) => prev.map((o) => o.id === orderId ? data.order : o));
-        notify(successMsg || `Order ${orderId} updated.`);
-        return;
       }
     } catch { /* fallback to local */ }
-    setOrders((current) => current.map((o) => o.id === orderId ? { ...o, ...updates } : o));
+
+    const nextOrders = orders.map((o) => o.id === orderId ? { ...o, ...updates } : o);
+    setOrders(nextOrders);
+    try {
+      await saveToDatabase("orders", nextOrders);
+    } catch { /* ignore */ }
     notify(successMsg || `Order ${orderId} updated.`);
   }
 
@@ -473,7 +612,7 @@ export default function AdminPage() {
         },
         body: JSON.stringify(codSettings),
       });
-      if (res.ok) notify("COD settings saved.");
+      if (res.ok) notify("COD settings saved to backend.");
     } catch {
       notify("Could not reach backend to save COD settings.");
     }
@@ -490,17 +629,101 @@ export default function AdminPage() {
     URL.revokeObjectURL(url);
   }
 
+  async function handleCategoryImageUpload(categoryId, file) {
+    if (!file) return;
+    try {
+      const dataUrl = await localImageToDataUrl(file);
+      const nextCategoryImages = {
+        ...(siteConfig.categoryImages || {}),
+        [categoryId]: dataUrl,
+      };
+      const updatedConfig = { ...siteConfig, categoryImages: nextCategoryImages };
+      setSiteConfig(updatedConfig);
+      await saveToDatabase("siteConfig", updatedConfig);
+      notify(`Category image for ${categoryId} updated in database.`);
+    } catch (err) {
+      notify(`Image upload failed: ${err.message}`);
+    }
+  }
+
+  async function handleHeroImageUpload(file) {
+    if (!file) return;
+    try {
+      const dataUrl = await localImageToDataUrl(file);
+      const updatedConfig = { ...siteConfig, heroImage: dataUrl };
+      setSiteConfig(updatedConfig);
+      await saveToDatabase("siteConfig", updatedConfig);
+      notify("Homepage hero image updated in database.");
+    } catch (err) {
+      notify(`Hero image upload failed: ${err.message}`);
+    }
+  }
+
   return (
     <main className="page-shell admin-page">
       <div className="admin-page-heading">
         <div>
-          <span className="eyebrow">S. SAWANT · Atelier Management</span>
+          <span className="eyebrow">S. SAWANT · Atelier Central Control</span>
           <h1>Admin Dashboard</h1>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <span className="local-admin-badge">Signed in: {user?.email}</span>
           <button type="button" className="button button-outline" onClick={handleAdminLogout}>
             <LogOut size={14} /> Log Out
+          </button>
+        </div>
+      </div>
+
+      {/* Centralized Backend Database Synchronization & Publish Bar */}
+      <div className="admin-sync-bar" style={{
+        background: "rgba(11, 20, 35, 0.95)",
+        border: "1px solid var(--border-gold)",
+        borderRadius: "8px",
+        padding: "14px 20px",
+        marginBottom: "24px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "16px",
+        flexWrap: "wrap",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{
+            width: 11,
+            height: 11,
+            borderRadius: "50%",
+            background: syncStatus === "saving" ? "#f59e0b" : syncStatus === "error" ? "#ef4444" : "#10b981",
+            boxShadow: syncStatus === "saving" ? "0 0 10px #f59e0b" : syncStatus === "error" ? "0 0 10px #ef4444" : "0 0 10px #10b981",
+          }} />
+          <div>
+            <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--champagne)" }}>
+              {syncStatus === "saving" ? "Saving to Central Database..." : syncStatus === "error" ? "Database Sync Notice" : "Central Database Synchronized"}
+            </div>
+            <div style={{ fontSize: "11px", color: "var(--muted)" }}>
+              {lastSyncedAt ? `Active across all devices · Last confirmed: ${lastSyncedAt}` : "Permanent cloud storage active · Changes auto-reflect on customer devices"}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button
+            type="button"
+            className="button button-outline"
+            style={{ padding: "8px 14px", fontSize: "12px" }}
+            onClick={refreshFromDatabase}
+            disabled={isSaving}
+          >
+            <RefreshCw size={13} className={isSaving ? "spin-icon" : ""} /> Sync from Database
+          </button>
+          <button
+            type="button"
+            className="button button-gold"
+            style={{ padding: "8px 18px", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px" }}
+            onClick={publishAll}
+            disabled={isSaving}
+          >
+            {isSaving ? <Loader2 size={14} className="spin-icon" /> : <UploadCloud size={14} />}
+            {isSaving ? "Saving to Database..." : "Save & Publish All Changes"}
           </button>
         </div>
       </div>
@@ -559,6 +782,7 @@ export default function AdminPage() {
               onDelete={removeProduct}
               onNew={() => { const item = startingProduct(); setProducts([...products, item]); setSelectedId(item.id); }}
               fabricBrands={fabricBrands}
+              isSaving={isSaving}
             />
           )}
         </div>
@@ -574,11 +798,22 @@ export default function AdminPage() {
           setFabricCatalog={setFabricCatalog}
           setProducts={setProducts}
           notify={notify}
+          saveToDatabase={saveToDatabase}
+          isSaving={isSaving}
         />
       )}
 
       {tab === "Pricing & Coupons" && (
-        <PricingManager products={products} fabricBrands={fabricBrands} pricing={pricing} onProducts={setProducts} onPricing={setPricing} notify={notify} />
+        <PricingManager
+          products={products}
+          fabricBrands={fabricBrands}
+          pricing={pricing}
+          onProducts={setProducts}
+          onPricing={setPricing}
+          notify={notify}
+          saveToDatabase={saveToDatabase}
+          isSaving={isSaving}
+        />
       )}
 
       {tab === "Orders" && (
@@ -702,16 +937,30 @@ export default function AdminPage() {
                       <td><strong>{apt.name}</strong><small>{apt.phone} · {apt.email}</small></td>
                       <td>{apt.purpose || "Fitting"}<small>{apt.interest}</small></td>
                       <td>
-                        <input type="date" value={apt.date} onChange={(e) => setAppointments((curr) => curr.map((a) => a.id === apt.id ? { ...a, date: e.target.value, status: "Rescheduled" } : a))} />
+                        <input type="date" value={apt.date} onChange={async (e) => {
+                          const nextApts = appointments.map((a) => a.id === apt.id ? { ...a, date: e.target.value, status: "Rescheduled" } : a);
+                          setAppointments(nextApts);
+                          await saveToDatabase("appointments", nextApts);
+                        }} />
                         <small>{apt.time}</small>
                       </td>
                       <td><span className="status-pill">{apt.status}</span></td>
                       <td>
                         <div style={{ display: "flex", gap: 8 }}>
-                          <button type="button" className="text-button" onClick={() => { setAppointments((curr) => curr.map((a) => a.id === apt.id ? { ...a, status: "Approved" } : a)); notify("Appointment approved."); }}>
+                          <button type="button" className="text-button" onClick={async () => {
+                            const nextApts = appointments.map((a) => a.id === apt.id ? { ...a, status: "Approved" } : a);
+                            setAppointments(nextApts);
+                            await saveToDatabase("appointments", nextApts);
+                            notify("Appointment approved in database.");
+                          }}>
                             <CheckCircle2 size={14} /> Approve
                           </button>
-                          <button type="button" className="text-button delete-image" onClick={() => { setAppointments((curr) => curr.map((a) => a.id === apt.id ? { ...a, status: "Rejected" } : a)); notify("Appointment rejected."); }}>
+                          <button type="button" className="text-button delete-image" onClick={async () => {
+                            const nextApts = appointments.map((a) => a.id === apt.id ? { ...a, status: "Rejected" } : a);
+                            setAppointments(nextApts);
+                            await saveToDatabase("appointments", nextApts);
+                            notify("Appointment rejected.");
+                          }}>
                             <XCircle size={14} /> Reject
                           </button>
                         </div>
@@ -752,20 +1001,169 @@ export default function AdminPage() {
         </section>
       )}
 
-      {tab === "Homepage" && (
+      {tab === "Homepage & Content" && (
         <section className="admin-panel">
-          <span className="eyebrow">Site &amp; Shop Configuration</span>
-          <h2>Homepage &amp; Business Settings</h2>
-          <div className="admin-fields-grid">
-            <label className="field-control"><span>Hero Eyebrow</span><input value={siteConfig.heroEyebrow} onChange={(e) => setSiteConfig({ ...siteConfig, heroEyebrow: e.target.value })} /></label>
-            <label className="field-control"><span>Hero Title</span><input value={siteConfig.heroTitle} onChange={(e) => setSiteConfig({ ...siteConfig, heroTitle: e.target.value })} /></label>
-            <label className="field-control"><span>Hero Title Accent</span><input value={siteConfig.heroTitleAccent} onChange={(e) => setSiteConfig({ ...siteConfig, heroTitleAccent: e.target.value })} /></label>
-            <label className="field-control"><span>Hero Image URL</span><input value={siteConfig.heroImage} onChange={(e) => setSiteConfig({ ...siteConfig, heroImage: e.target.value })} /></label>
-            <label className="field-control field-control-full"><span>Hero Subtitle</span><textarea value={siteConfig.heroSubtitle} onChange={(e) => setSiteConfig({ ...siteConfig, heroSubtitle: e.target.value })} /></label>
-            <label className="field-control"><span>Shop Opening Hours</span><input value={siteConfig.openingHours} onChange={(e) => setSiteConfig({ ...siteConfig, openingHours: e.target.value })} /></label>
-            <label className="field-control"><span>Shop UPI ID</span><input value={siteConfig.upiId} onChange={(e) => setSiteConfig({ ...siteConfig, upiId: e.target.value })} /></label>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <div>
+              <span className="eyebrow">Site &amp; Shop Configuration</span>
+              <h2>Homepage, Banners &amp; Content Management</h2>
+            </div>
+            <button
+              className="button button-gold"
+              onClick={async () => {
+                await saveToDatabase("siteConfig", siteConfig);
+              }}
+              disabled={isSaving}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+            >
+              {isSaving ? <Loader2 size={14} className="spin-icon" /> : <Save size={14} />}
+              {isSaving ? "Publishing to Database..." : "Save & Publish Content"}
+            </button>
           </div>
-          <button className="button button-gold" style={{ marginTop: 16 }} onClick={() => notify("Homepage & shop settings saved.")}><Save size={14} /> Save Settings</button>
+
+          <h3 style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 8, marginTop: 16 }}>
+            Top Website Announcement Bar
+          </h3>
+          <p className="admin-subcopy">The announcement displayed at the very top of all pages across desktop and mobile.</p>
+          <div className="admin-fields-grid" style={{ marginBottom: 24 }}>
+            <label className="field-control">
+              <span>Announcement Status</span>
+              <select
+                value={siteConfig.announcementEnabled !== false ? "enabled" : "disabled"}
+                onChange={(e) => setSiteConfig({ ...siteConfig, announcementEnabled: e.target.value === "enabled" })}
+              >
+                <option value="enabled">Active (Shown on all devices)</option>
+                <option value="disabled">Hidden</option>
+              </select>
+            </label>
+            <label className="field-control">
+              <span>Target Link</span>
+              <input
+                value={siteConfig.announcementLink || "/shop"}
+                onChange={(e) => setSiteConfig({ ...siteConfig, announcementLink: e.target.value })}
+                placeholder="/shop or https://..."
+              />
+            </label>
+            <label className="field-control field-control-full">
+              <span>Announcement Text</span>
+              <input
+                value={siteConfig.announcementText || ""}
+                onChange={(e) => setSiteConfig({ ...siteConfig, announcementText: e.target.value })}
+                placeholder="e.g. Complimentary delivery over ₹10,000 ✦ Bespoke Indian Menswear"
+              />
+            </label>
+          </div>
+
+          <h3 style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 8, marginTop: 24 }}>
+            Homepage Promotional Banner
+          </h3>
+          <p className="admin-subcopy">Highlight seasonal offers, wedding booking periods, or trunk shows.</p>
+          <div className="admin-fields-grid" style={{ marginBottom: 24 }}>
+            <label className="field-control">
+              <span>Banner Active</span>
+              <select
+                value={siteConfig.promotionalBannerActive ? "active" : "inactive"}
+                onChange={(e) => setSiteConfig({ ...siteConfig, promotionalBannerActive: e.target.value === "active" })}
+              >
+                <option value="active">Active (Shown on Homepage)</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </label>
+            <label className="field-control field-control-full">
+              <span>Promotional Text</span>
+              <input
+                value={siteConfig.promotionalBannerText || ""}
+                onChange={(e) => setSiteConfig({ ...siteConfig, promotionalBannerText: e.target.value })}
+                placeholder="e.g. Wedding & Festive Season Atelier Booking Open"
+              />
+            </label>
+          </div>
+
+          <h3 style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 8, marginTop: 24 }}>
+            Hero Presentation &amp; Headline
+          </h3>
+          <div className="admin-fields-grid" style={{ marginBottom: 24 }}>
+            <label className="field-control">
+              <span>Hero Eyebrow</span>
+              <input value={siteConfig.heroEyebrow || ""} onChange={(e) => setSiteConfig({ ...siteConfig, heroEyebrow: e.target.value })} />
+            </label>
+            <label className="field-control">
+              <span>Hero Title</span>
+              <input value={siteConfig.heroTitle || ""} onChange={(e) => setSiteConfig({ ...siteConfig, heroTitle: e.target.value })} />
+            </label>
+            <label className="field-control">
+              <span>Hero Title Accent (Italicised)</span>
+              <input value={siteConfig.heroTitleAccent || ""} onChange={(e) => setSiteConfig({ ...siteConfig, heroTitleAccent: e.target.value })} />
+            </label>
+            <label className="field-control">
+              <span>Hero Image URL</span>
+              <input value={siteConfig.heroImage || ""} onChange={(e) => setSiteConfig({ ...siteConfig, heroImage: e.target.value })} />
+            </label>
+            <div className="field-control">
+              <span>Upload New Hero Image</span>
+              <label className="button button-outline" style={{ marginTop: 4, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <ImagePlus size={14} /> Upload Hero Photograph
+                <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleHeroImageUpload(e.target.files?.[0])} />
+              </label>
+            </div>
+            <label className="field-control field-control-full">
+              <span>Hero Subtitle Copy</span>
+              <textarea value={siteConfig.heroSubtitle || ""} onChange={(e) => setSiteConfig({ ...siteConfig, heroSubtitle: e.target.value })} rows={3} />
+            </label>
+          </div>
+
+          <h3 style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 8, marginTop: 24 }}>
+            Category &amp; Collection Photography
+          </h3>
+          <p className="admin-subcopy">Customize the images displayed on the homepage category tiles for each collection.</p>
+          <div className="admin-fields-grid" style={{ marginBottom: 24 }}>
+            {CATEGORIES.map((cat) => {
+              const currentImg = siteConfig.categoryImages?.[cat.id] || "";
+              return (
+                <div key={cat.id} className="field-control" style={{ border: "1px solid rgba(255,255,255,0.08)", padding: 12, borderRadius: 6 }}>
+                  <span style={{ fontWeight: 600, color: "var(--champagne)" }}>{cat.name}</span>
+                  <input
+                    value={currentImg}
+                    placeholder="/images/... or URL"
+                    onChange={(e) => {
+                      const next = { ...(siteConfig.categoryImages || {}), [cat.id]: e.target.value };
+                      setSiteConfig({ ...siteConfig, categoryImages: next });
+                    }}
+                    style={{ marginTop: 6, fontSize: 12 }}
+                  />
+                  <div style={{ display: "flex", gap: 8, marginTop: 8, alignItems: "center" }}>
+                    <label className="text-button" style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <ImagePlus size={12} /> Upload Photo
+                      <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleCategoryImageUpload(cat.id, e.target.files?.[0])} />
+                    </label>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <h3 style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: 8, marginTop: 24 }}>
+            Atelier &amp; Shop Details
+          </h3>
+          <div className="admin-fields-grid" style={{ marginBottom: 24 }}>
+            <label className="field-control"><span>Opening Hours</span><input value={siteConfig.openingHours || ""} onChange={(e) => setSiteConfig({ ...siteConfig, openingHours: e.target.value })} /></label>
+            <label className="field-control"><span>Merchant UPI ID</span><input value={siteConfig.upiId || ""} onChange={(e) => setSiteConfig({ ...siteConfig, upiId: e.target.value })} /></label>
+            <label className="field-control"><span>Contact Phone</span><input value={siteConfig.contactPhone || ""} onChange={(e) => setSiteConfig({ ...siteConfig, contactPhone: e.target.value })} /></label>
+            <label className="field-control"><span>Contact Email</span><input value={siteConfig.contactEmail || ""} onChange={(e) => setSiteConfig({ ...siteConfig, contactEmail: e.target.value })} /></label>
+            <label className="field-control field-control-full"><span>Atelier Address</span><input value={siteConfig.contactAddress || ""} onChange={(e) => setSiteConfig({ ...siteConfig, contactAddress: e.target.value })} /></label>
+          </div>
+
+          <button
+            className="button button-gold"
+            style={{ marginTop: 16, display: "inline-flex", alignItems: "center", gap: 6 }}
+            onClick={async () => {
+              await saveToDatabase("siteConfig", siteConfig);
+            }}
+            disabled={isSaving}
+          >
+            {isSaving ? <Loader2 size={14} className="spin-icon" /> : <Save size={14} />}
+            {isSaving ? "Saving to Database..." : "Save & Publish All Content to Database"}
+          </button>
         </section>
       )}
     </main>

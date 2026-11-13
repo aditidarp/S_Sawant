@@ -10,7 +10,11 @@ export default function ProductCard({ product, wished, onWishlist }) {
     <article className="product-card">
       <Link to={`/product/${product.id}`} className="product-card-media">
         {src ? <img src={src} alt={`${product.name}, Indian-made tailoring`} loading="lazy" /> : <ImagePlaceholder colour={product.defaultColour} compact />}
-        <span className="product-card-tag">Made to measure</span>
+        {product.inStock === false ? (
+          <span className="product-card-tag" style={{ background: "rgba(127, 29, 29, 0.9)", color: "#fecaca", borderColor: "#ef4444" }}>Out of stock</span>
+        ) : (
+          <span className="product-card-tag">Made to measure</span>
+        )}
         <span className="product-card-arrow"><MoveUpRight size={16} /></span>
       </Link>
       <button type="button" className={`wishlist-button ${wished ? "wishlist-active" : ""}`} onClick={() => onWishlist(product.id)} aria-label={wished ? "Remove from wishlist" : "Add to wishlist"} aria-pressed={wished}>

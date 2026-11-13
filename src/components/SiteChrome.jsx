@@ -16,7 +16,7 @@ function Logo({ footer = false }) {
 }
 
 export function Header({ onCart }) {
-  const { cart, wishlist } = useStore();
+  const { cart, wishlist, siteConfig } = useStore();
   const { isAuthenticated, user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -42,7 +42,17 @@ export function Header({ onCart }) {
 
   return (
     <header className="site-header">
-      <div className="announcement">Complimentary delivery over ₹10,000 <span>✦</span> Bespoke Indian Menswear · Chhatrapati Sambhajinagar</div>
+      {siteConfig?.announcementEnabled !== false && (
+        <div className="announcement">
+          {siteConfig?.announcementLink ? (
+            <Link to={siteConfig.announcementLink} style={{ color: "inherit", textDecoration: "none" }}>
+              {siteConfig?.announcementText || "Complimentary delivery over ₹10,000 ✦ Bespoke Indian Menswear · Chhatrapati Sambhajinagar"}
+            </Link>
+          ) : (
+            siteConfig?.announcementText || "Complimentary delivery over ₹10,000 ✦ Bespoke Indian Menswear · Chhatrapati Sambhajinagar"
+          )}
+        </div>
+      )}
       <div className="nav-shell">
         <button type="button" className="icon-control mobile-menu-trigger" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? "Close menu" : "Open menu"}>
           {menuOpen ? <X size={20} /> : <Menu size={20} />}

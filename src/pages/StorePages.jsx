@@ -58,6 +58,29 @@ export function HomePage() {
         <span className="hero-caption">S. SAWANT · The Art of Fine Tailoring</span>
       </section>
 
+      {siteConfig?.promotionalBannerActive && siteConfig?.promotionalBannerText && (
+        <section className="promo-banner-strip" style={{
+          background: "linear-gradient(90deg, #0b1423 0%, #17243c 50%, #0b1423 100%)",
+          borderTop: "1px solid rgba(201, 170, 112, 0.25)",
+          borderBottom: "1px solid rgba(201, 170, 112, 0.25)",
+          padding: "14px 24px",
+          textAlign: "center",
+          color: "var(--gold-pale)",
+          fontSize: "12px",
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          fontWeight: 600,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "12px",
+        }}>
+          <Sparkles size={14} style={{ color: "var(--gold)" }} />
+          <span>{siteConfig.promotionalBannerText}</span>
+          <Sparkles size={14} style={{ color: "var(--gold)" }} />
+        </section>
+      )}
+
       <section className="category-section section-wrap">
         <div className="section-heading-row">
           <div><span className="eyebrow">The S. SAWANT collection</span><h2>Featured Collections</h2></div>
@@ -66,7 +89,7 @@ export function HomePage() {
         <div className="category-grid-home">
           {CATEGORIES.map((category, index) => (
             <Link className={`category-tile category-tile-${index + 1}`} to={`/shop?category=${category.id}`} key={category.id}>
-              <img src={categoryImages[category.id] || "/images/editorial/hero-bespoke.jpg"} alt={`${category.name} — S. SAWANT Indian menswear`} loading="lazy" />
+              <img src={siteConfig?.categoryImages?.[category.id] || categoryImages[category.id] || "/images/editorial/hero-bespoke.jpg"} alt={`${category.name} — S. SAWANT Indian menswear`} loading="lazy" />
               <span className="category-shade" />
               <div className="category-tile-copy">
                 <span>0{index + 1} · MADE TO MEASURE</span>

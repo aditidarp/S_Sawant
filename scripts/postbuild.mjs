@@ -41,4 +41,12 @@ for (const route of routes) {
   fs.writeFileSync(path.join(targetDir, "index.html"), indexHtml, "utf8");
 }
 
-console.log("Postbuild: Generated 404.html and static route entrypoints for all routes.");
+// 3. Ensure API files are in dist
+const publicApiDir = path.resolve(__dirname, "../public/api");
+const distApiDir = path.join(distDir, "api");
+if (fs.existsSync(publicApiDir)) {
+  fs.cpSync(publicApiDir, distApiDir, { recursive: true });
+}
+
+console.log("Postbuild: Generated 404.html, static routes, and central database endpoints.");
+

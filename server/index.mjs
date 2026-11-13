@@ -8,6 +8,7 @@ import { sendOrderNotification } from "./notifications.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, "data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
+const STORE_DB_FILE = path.join(DATA_DIR, "store_db.json");
 const PORT = Number(process.env.PORT || 4000);
 
 const ORDER_STAGES = [
@@ -39,6 +40,7 @@ function ensureDb() {
     };
     fs.writeFileSync(DB_FILE, JSON.stringify(initial, null, 2));
   }
+  ensureStoreDb();
 }
 
 function readDb() {
@@ -49,6 +51,97 @@ function readDb() {
 function writeDb(db) {
   ensureDb();
   fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
+}
+
+function ensureStoreDb() {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (!fs.existsSync(STORE_DB_FILE)) {
+    const initial = {
+      version: Date.now(),
+      updatedAt: new Date().toISOString(),
+      updatedBy: "System Initializer",
+      siteConfig: {
+        heroEyebrow: "The art of fine tailoring · Chhatrapati Sambhajinagar",
+        heroTitle: "Timeless elegance.",
+        heroTitleAccent: "Tailored for you.",
+        heroSubtitle: "Experience the art of bespoke Indian menswear with considered fabrics, thoughtful details and a fit that feels unmistakably yours.",
+        heroImage: "/images/editorial/hero-bespoke.jpg",
+        openingHours: "Monday – Saturday: 10:00 AM – 8:00 PM · Sunday: By Appointment",
+        upiId: "omawant170604@okicici",
+        announcementText: "Complimentary delivery over ₹10,000 ✦ Bespoke Indian Menswear · Chhatrapati Sambhajinagar",
+        announcementEnabled: true,
+        announcementLink: "/shop",
+        promotionalBannerText: "Wedding & Festive Season Atelier Booking Open",
+        promotionalBannerActive: true,
+        contactPhone: "+91 83088 78204",
+        contactEmail: "contact@ssawant.in",
+        contactAddress: "Opp. Tapadiya Park, Town Centre, CIDCO, Chhatrapati Sambhajinagar, Maharashtra 431003",
+        categoryImages: {
+          shirts: "/images/products/shirts/black-front.jpeg",
+          trousers: "/images/products/trousers/light-grey-front.jpeg",
+          blazers: "/images/editorial/hero-bespoke.jpg",
+          "two-piece-suits": "/images/products/suits/navy-two-piece-front.jpeg",
+          "three-piece-suits": "/images/products/waistcoats/navy-front.jpeg",
+          kurtas: "/images/products/kurtas/ivory-front.png",
+          waistcoats: "/images/products/waistcoats/navy-front.jpeg",
+          "wedding-collection": "/images/editorial/hero-bespoke.jpg",
+        },
+      },
+      products: [],
+      fabricBrands: ["Raymond", "Siyaram's", "Arvind Mills", "Linen Club", "J. Hampstead", "Graviera"],
+      fabricCatalog: [],
+      pricing: {
+        fabricPremiums: {
+          Raymond: 0,
+          "Siyaram's": 0,
+          "Arvind Mills": 0,
+          "Linen Club": 0,
+          "J. Hampstead": 0,
+          Graviera: 0,
+        },
+        optionPremiums: {
+          premiumButtons: 0,
+          lining: 0,
+          embroidery: 0,
+          monogram: 0,
+        },
+        priceRules: [],
+        coupons: [
+          {
+            code: "SAWANT10",
+            discountPercent: 10,
+            active: true,
+            description: "10% off your bespoke order",
+          },
+        ],
+      },
+      orders: [],
+      appointments: [],
+      customers: [],
+    };
+    fs.writeFileSync(STORE_DB_FILE, JSON.stringify(initial, null, 2));
+  }
+}
+
+function readStoreDb() {
+  ensureStoreDb();
+  return JSON.parse(fs.readFileSync(STORE_DB_FILE, "utf8"));
+}
+
+function writeStoreDb(data) {
+  ensureStoreDb();
+  fs.writeFileSync(STORE_DB_FILE, JSON.stringify(data, null, 2));
+}
+
+function broadcastStoreUpdate(version, changedKeys = []) {
+  const payload = `event: store-update\ndata: ${JSON.stringify({ version, changedKeys, updatedAt: new Date().toISOString() })}\n\n`;
+  for (const res of sseClients) {
+    try {
+      res.write(payload);
+    } catch {
+      sseClients.delete(res);
+    }
+  }
 }
 
 function generateOrderId(db) {
@@ -592,6 +685,93 @@ const server = http.createServer(async (req, res) => {
       };
       writeDb(db);
       return sendJson(res, 200, { settings: db.settings });
+    }
+
+    // 13. Centralized Store Database: Version endpoint (Ultra-lightweight real-time sync polling)
+    if (req.method === "GET" && (pathname === "/api/store/version" || (pathname === "/api/db.php" && url.searchParams.get("action") === "version"))) {
+      const storeDb = readStoreDb();
+      return sendJson(res, 200, {
+        ok: true,
+        version: storeDb.version || 0,
+        updatedAt: storeDb.updatedAt || new Date().toISOString(),
+      });
+    }
+
+    // 14. Centralized Store Database: Get single key
+    if (req.method === "GET" && ((pathname === "/api/db.php" && url.searchParams.get("action") === "get") || pathname.startsWith("/api/store/key/"))) {
+      const key = pathname.startsWith("/api/store/key/") ? decodeURIComponent(pathname.replace("/api/store/key/", "")) : url.searchParams.get("key");
+      if (!key) return sendJson(res, 400, { ok: false, error: "Missing key parameter." });
+      const storeDb = readStoreDb();
+      return sendJson(res, 200, {
+        ok: true,
+        key,
+        value: storeDb[key] ?? null,
+        version: storeDb.version || 0,
+        updatedAt: storeDb.updatedAt || new Date().toISOString(),
+      });
+    }
+
+    // 15. Centralized Store Database: Get all collections (Public read for customers & admin)
+    if (req.method === "GET" && (pathname === "/api/store/all" || pathname === "/api/db.php")) {
+      const storeDb = readStoreDb();
+      return sendJson(res, 200, {
+        ok: true,
+        version: storeDb.version || 0,
+        updatedAt: storeDb.updatedAt || new Date().toISOString(),
+        data: storeDb,
+      });
+    }
+
+    // 16. Centralized Store Database: Save changes (Admin authorized)
+    if (req.method === "POST" && (pathname === "/api/store/batch" || pathname === "/api/db.php" || pathname.startsWith("/api/store/"))) {
+      if (!isAdminRequest(req)) {
+        return sendJson(res, 403, {
+          ok: false,
+          error: "Administrator authorization required (X-Admin-Role and X-Admin-Email header required).",
+        });
+      }
+      const { json: body } = await readBody(req);
+      const adminEmail = req.headers["x-admin-email"] || "admin@ssawant.in";
+      const storeDb = readStoreDb();
+      const newVersion = Date.now();
+      const now = new Date().toISOString();
+      const changedKeys = [];
+
+      if (body.batch && typeof body.batch === "object") {
+        for (const [k, v] of Object.entries(body.batch)) {
+          storeDb[k] = v;
+          changedKeys.push(k);
+        }
+      } else if (body.key) {
+        storeDb[body.key] = body.value ?? null;
+        changedKeys.push(body.key);
+      } else if (pathname.startsWith("/api/store/") && pathname !== "/api/store/batch") {
+        const key = decodeURIComponent(pathname.replace("/api/store/", ""));
+        storeDb[key] = body.value !== undefined ? body.value : body;
+        changedKeys.push(key);
+      } else {
+        for (const [k, v] of Object.entries(body)) {
+          if (k !== "version" && k !== "updatedAt" && k !== "updatedBy") {
+            storeDb[k] = v;
+            changedKeys.push(k);
+          }
+        }
+      }
+
+      storeDb.version = newVersion;
+      storeDb.updatedAt = now;
+      storeDb.updatedBy = adminEmail;
+
+      writeStoreDb(storeDb);
+      broadcastStoreUpdate(newVersion, changedKeys);
+
+      return sendJson(res, 200, {
+        ok: true,
+        message: "Changes permanently committed to database.",
+        version: newVersion,
+        updatedAt: now,
+        changedKeys,
+      });
     }
 
     return sendJson(res, 404, { error: "Endpoint not found." });
