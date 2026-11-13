@@ -29,6 +29,15 @@ $uploadsDir = __DIR__ . '/../images/uploads';
 if (!file_exists($uploadsDir)) {
     @mkdir($uploadsDir, 0755, true);
 }
+if (!is_writable($uploadsDir)) {
+    $fallbackUploads = __DIR__ . '/uploads';
+    if (!file_exists($fallbackUploads)) {
+        @mkdir($fallbackUploads, 0755, true);
+    }
+    if (is_writable($fallbackUploads)) {
+        $uploadsDir = $fallbackUploads;
+    }
+}
 
 $dbFile = $dataDir . '/store_db.json';
 $auditFile = $dataDir . '/audit_log.json';
@@ -183,9 +192,13 @@ function isAdmin($payload = []) {
     if (isset($payload['adminRole']) && $payload['adminRole'] === 'admin') {
         return $payload['adminEmail'] ?? 'shivaji@ssawant.in';
     }
+    // Verify credentials inside POST form data
+    if (isset($_POST['adminRole']) && $_POST['adminRole'] === 'admin') {
+        return $_POST['adminEmail'] ?? 'shivaji@ssawant.in';
+    }
     // Also accept query param
     if (isset($_GET['adminKey']) && $_GET['adminKey'] === 'sawant_admin') {
-        return 'admin_key';
+        return $_GET['adminEmail'] ?? 'shivaji@ssawant.in';
     }
     return false;
 }

@@ -18,7 +18,7 @@ fs.writeFileSync(path.join(distDir, "404.html"), indexHtml, "utf8");
 
 // 2. Pre-generate physical folders with index.html for all primary application routes
 // This ensures that even if .htaccess is omitted or ignored by the hosting server,
-// navigating directly to /admin/login, /admin, /track-order, etc. will NEVER result in a 404.
+// navigating directly to /admin/login, /admin, /track-order, /product/formal-shirt, etc. will NEVER result in a 404.
 const routes = [
   "admin",
   "admin/login",
@@ -33,6 +33,14 @@ const routes = [
   "login",
   "signup",
   "checkout",
+  "product/formal-shirt",
+  "product/tailored-trouser",
+  "product/blazer",
+  "product/two-piece-suit",
+  "product/three-piece-suit",
+  "product/heritage-kurta",
+  "product/waistcoat",
+  "product/wedding-royal-ensemble",
 ];
 
 for (const route of routes) {
@@ -48,5 +56,16 @@ if (fs.existsSync(publicApiDir)) {
   fs.cpSync(publicApiDir, distApiDir, { recursive: true });
 }
 
-console.log("Postbuild: Generated 404.html, static routes, and central database endpoints.");
+// 4. Ensure images/uploads directory exists in dist
+const distUploadsDir = path.join(distDir, "images/uploads");
+fs.mkdirSync(distUploadsDir, { recursive: true });
+fs.writeFileSync(path.join(distUploadsDir, ".gitkeep"), "# uploaded images\n", "utf8");
 
+// 5. Ensure .htaccess is copied from public to dist
+const publicHtaccess = path.resolve(__dirname, "../public/.htaccess");
+const distHtaccess = path.join(distDir, ".htaccess");
+if (fs.existsSync(publicHtaccess)) {
+  fs.copyFileSync(publicHtaccess, distHtaccess);
+}
+
+console.log("Postbuild: Generated 404.html, static routes, images/uploads, and central database endpoints.");

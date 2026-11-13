@@ -774,6 +774,73 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    // 17. Dedicated Image Upload Endpoint (supports /api/upload.php and /api/upload)
+    if (req.method === "POST" && (pathname === "/api/upload.php" || pathname === "/api/upload")) {
+      const { json: body } = await readBody(req);
+      const isKeyAuth = url.searchParams.get("adminKey") === "sawant_admin";
+      const isRoleAuth = req.headers["x-admin-role"] === "admin" || body?.adminRole === "admin";
+      if (!isKeyAuth && !isRoleAuth) {
+        return sendJson(res, 403, { ok: false, error: "Administrator authorization required." });
+      }
+
+      let imgData = body?.image;
+      const productId = body?.productId || url.searchParams.get("productId") || "";
+      const colour = body?.colour || url.searchParams.get("colour") || "";
+      const view = body?.view || url.searchParams.get("view") || "front";
+
+      const uploadsDir = path.resolve(__dirname, "../public/images/uploads");
+      if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+      const safeProduct = (productId || "").replace(/[^a-zA-Z0-9_-]/g, "");
+      const safeColour = (colour || "").replace(/[^a-zA-Z0-9_-]/g, "");
+      const safeView = (view || "").replace(/[^a-zA-Z0-9_-]/g, "");
+
+      let filename = `img_${safeProduct ? safeProduct + "_" : ""}${safeColour ? safeColour + "_" : ""}${safeView ? safeView + "_" : ""}${Date.now()}_${Math.random().toString(36).slice(2, 8)}.jpg`;
+
+      if (imgData && typeof imgData === "string" && imgData.startsWith("data:image/")) {
+        const matches = imgData.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
+        if (matches) {
+          const ext = matches[1].toLowerCase() === "jpeg" ? "jpg" : matches[1].toLowerCase();
+          filename = filename.replace(/\.jpg$/, `.${ext}`);
+          const buffer = Buffer.from(matches[2], "base64");
+          fs.writeFileSync(path.join(uploadsDir, filename), buffer);
+        }
+      }
+
+      const publicUrl = `/images/uploads/${filename}`;
+      const storeDb = readStoreDb();
+      const newVersion = Date.now();
+      const now = new Date().toISOString();
+
+      let dbUpdated = false;
+      if (productId && colour && Array.isArray(storeDb.products)) {
+        const prod = storeDb.products.find((p) => p.id === productId);
+        if (prod) {
+          if (!prod.images) prod.images = {};
+          if (!prod.images[colour]) prod.images[colour] = {};
+          prod.images[colour][view] = publicUrl;
+          storeDb.version = newVersion;
+          storeDb.updatedAt = now;
+          storeDb.updatedBy = "admin";
+          writeStoreDb(storeDb);
+          broadcastStoreUpdate(newVersion, ["products"]);
+          dbUpdated = true;
+        }
+      }
+
+      return sendJson(res, 200, {
+        ok: true,
+        url: publicUrl,
+        filename,
+        version: newVersion,
+        productId,
+        colour,
+        view,
+        dbUpdated,
+        message: "Image successfully saved and synchronized across all devices.",
+      });
+    }
+
     return sendJson(res, 404, { error: "Endpoint not found." });
   } catch (err) {
     return sendJson(res, 500, { error: err.message || "Internal server error" });

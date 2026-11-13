@@ -23,7 +23,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useStore } from "../context/StoreContext.jsx";
 import { apiUrl } from "../lib/api.js";
 import { createId, formatPrice } from "../lib/format.js";
-import { localImageToDataUrl } from "../services/repository.js";
+import { repository, localImageToDataUrl } from "../services/repository.js";
 import { ImagePlaceholder } from "../components/ProductMedia.jsx";
 
 const TABS = ["Overview", "Products", "Images", "Fabrics", "Pricing & Coupons", "Orders", "Appointments", "Customers", "Homepage & Content"];
@@ -137,6 +137,7 @@ function ImageManager({ products, onUpdate }) {
   const [colour, setColour] = useState(product?.defaultColour || "");
   const [view, setView] = useState("front");
   const [uploading, setUploading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -148,24 +149,42 @@ function ImageManager({ products, onUpdate }) {
     const file = event.target.files?.[0];
     if (!file || !product) return;
     if (!file.type.startsWith("image/")) {
-      setError("Choose an image file (JPEG, PNG or WebP).");
+      setError("Please choose a valid image file (JPEG, PNG or WebP).");
       return;
     }
     setUploading(true);
+    setError("");
+    setStatusMessage("Uploading image to server...");
+
     try {
-      const dataUrl = await localImageToDataUrl(file);
+      // 1. Upload to dedicated server upload endpoint
+      const uploadResult = await repository.uploadImage(file, {
+        productId: product.id,
+        colour,
+        view,
+      });
+
+      const serverImageUrl = uploadResult.url;
+      setStatusMessage("Saving to database & synchronizing across devices...");
+
+      // 2. Update product model with persistent server image URL
       const updated = {
         ...product,
         images: {
           ...product.images,
-          [colour]: { ...(product.images?.[colour] || {}), [view]: dataUrl },
+          [colour]: { ...(product.images?.[colour] || {}), [view]: serverImageUrl },
         },
       };
+
+      // 3. Save updated product catalog to store database
       await onUpdate(updated);
+
+      setStatusMessage(`✓ ${colour} ${view} photo uploaded and synchronized across all devices!`);
       setError("");
       event.target.value = "";
     } catch (problem) {
-      setError(`Image could not be uploaded: ${problem.message}`);
+      setError(`Image upload failed: ${problem.message}`);
+      setStatusMessage("");
     } finally {
       setUploading(false);
     }
@@ -187,10 +206,11 @@ function ImageManager({ products, onUpdate }) {
       <div className="admin-photo-preview">{existing ? <img src={existing} alt={`${product.name} ${colour} ${view}`} /> : <ImagePlaceholder colour={colour} view={view} />}</div>
       <label className="button button-gold upload-control" style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}>
         {uploading ? <Loader2 size={15} className="spin-icon" /> : <ImagePlus size={15} />}
-        <span>{uploading ? "Uploading & Saving to Database..." : `Upload ${colour} ${view} Photo`}</span>
+        <span>{uploading ? (statusMessage || "Uploading...") : `Upload ${colour} ${view} Photo`}</span>
         <input type="file" accept="image/*" onChange={upload} disabled={uploading} style={{ display: "none" }} />
       </label>
       {existing && <button type="button" className="text-button delete-image" style={{ marginLeft: 12 }} onClick={async () => { const images = { ...product.images, [colour]: { ...product.images[colour] } }; delete images[colour][view]; if (!Object.keys(images[colour]).length) delete images[colour]; await onUpdate({ ...product, images }); }}>Remove this image</button>}
+      {statusMessage && !error && !uploading && <p style={{ color: "#4ade80", marginTop: 8, fontSize: "0.9rem" }}>{statusMessage}</p>}
       {error && <p className="form-error">{error}</p>}
     </section>
   );
@@ -558,8 +578,9 @@ export default function AdminPage() {
     try {
       await saveToDatabase("products", next);
       notify("Product updated in database.");
-    } catch {
-      // notification handled
+    } catch (err) {
+      notify(`Database save warning: ${err.message}`);
+      throw err;
     }
   }
 

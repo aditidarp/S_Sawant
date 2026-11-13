@@ -1,0 +1,1072 @@
+{
+  "version": 1794561757747,
+  "updatedAt": "2026-11-13T09:22:37.748Z",
+  "updatedBy": "System Initializer",
+  "siteConfig": {
+    "heroEyebrow": "The art of fine tailoring · Chhatrapati Sambhajinagar",
+    "heroTitle": "Timeless elegance.",
+    "heroTitleAccent": "Tailored for you.",
+    "heroSubtitle": "Experience the art of bespoke Indian menswear with considered fabrics, thoughtful details and a fit that feels unmistakably yours.",
+    "heroImage": "/images/editorial/hero-bespoke.jpg",
+    "openingHours": "Monday – Saturday: 10:00 AM – 8:00 PM · Sunday: By Appointment",
+    "upiId": "omawant170604@okicici",
+    "announcementText": "Complimentary delivery over ₹10,000 ✦ Bespoke Indian Menswear · Chhatrapati Sambhajinagar",
+    "announcementEnabled": true,
+    "announcementLink": "/shop",
+    "promotionalBannerText": "Wedding & Festive Season Atelier Booking Open",
+    "promotionalBannerActive": true,
+    "contactPhone": "+91 83088 78204",
+    "contactEmail": "contact@ssawant.in",
+    "contactAddress": "Opp. Tapadiya Park, Town Centre, CIDCO, Chhatrapati Sambhajinagar, Maharashtra 431003",
+    "categoryImages": {
+      "shirts": "/images/products/shirts/black-front.jpeg",
+      "trousers": "/images/products/trousers/light-grey-front.jpeg",
+      "blazers": "/images/editorial/hero-bespoke.jpg",
+      "two-piece-suits": "/images/products/suits/navy-two-piece-front.jpeg",
+      "three-piece-suits": "/images/products/waistcoats/navy-front.jpeg",
+      "kurtas": "/images/products/kurtas/ivory-front.png",
+      "waistcoats": "/images/products/waistcoats/navy-front.jpeg",
+      "wedding-collection": "/images/editorial/hero-bespoke.jpg"
+    }
+  },
+  "products": [
+    {
+      "id": "formal-shirt",
+      "name": "The Juhu Formal Shirt",
+      "category": "Formal Shirts",
+      "categoryId": "shirts",
+      "price": 6500,
+      "inStock": true,
+      "bestSeller": true,
+      "description": "An impeccably considered shirt, cut to your measurements in fine cotton and finished with the details you choose.",
+      "fabrics": [
+        "Raymond",
+        "Siyaram's",
+        "Arvind",
+        "Linen Club",
+        "Minister White"
+      ],
+      "colours": [
+        "White",
+        "Sky Blue",
+        "Black",
+        "Light Pink",
+        "Lavender",
+        "Beige"
+      ],
+      "defaultColour": "Black",
+      "model3d": "",
+      "images": {
+        "Black": {
+          "front": "/images/products/shirts/black-front.jpeg"
+        }
+      },
+      "options": [
+        {
+          "label": "Fit",
+          "key": "fit",
+          "values": [
+            "Slim",
+            "Regular",
+            "Relaxed"
+          ]
+        },
+        {
+          "label": "Fabric type",
+          "key": "fabricType",
+          "values": [
+            "Fine cotton",
+            "Cotton poplin",
+            "Linen blend",
+            "Oxford weave"
+          ]
+        },
+        {
+          "label": "Collar style",
+          "key": "collar",
+          "values": [
+            "Spread",
+            "Cutaway",
+            "Point",
+            "Button-down",
+            "Band"
+          ]
+        },
+        {
+          "label": "Cuff style",
+          "key": "cuff",
+          "values": [
+            "Single button",
+            "Double button",
+            "French cuff"
+          ]
+        },
+        {
+          "label": "Button style",
+          "key": "buttons",
+          "values": [
+            "Mother of pearl",
+            "Classic ivory",
+            "Dark horn",
+            "Matte black"
+          ]
+        },
+        {
+          "label": "Pocket option",
+          "key": "pocket",
+          "values": [
+            "No pocket",
+            "Single chest pocket"
+          ]
+        },
+        {
+          "label": "Sleeve length",
+          "key": "sleeve",
+          "values": [
+            "Full sleeve",
+            "Half sleeve"
+          ]
+        },
+        {
+          "label": "Shirt length",
+          "key": "shirtLength",
+          "values": [
+            "Regular",
+            "Long (Tuck-in)",
+            "Short (Untucked)"
+          ]
+        },
+        {
+          "label": "Monogram",
+          "key": "monogram",
+          "type": "text",
+          "placeholder": "Up to 3 initials"
+        }
+      ]
+    },
+    {
+      "id": "tailored-trouser",
+      "name": "The Marine Drive Trouser",
+      "category": "Formal Trousers",
+      "categoryId": "trousers",
+      "price": 7800,
+      "inStock": true,
+      "bestSeller": false,
+      "description": "A clean, considered trouser with an easy drape and a waist shaped to you.",
+      "fabrics": [
+        "Raymond",
+        "Siyaram's",
+        "Arvind",
+        "Linen Club",
+        "Minister White"
+      ],
+      "colours": [
+        "Black",
+        "Navy Blue",
+        "Brown",
+        "Light Grey"
+      ],
+      "defaultColour": "Light Grey",
+      "model3d": "",
+      "images": {
+        "Light Grey": {
+          "front": "/images/products/trousers/light-grey-front.jpeg"
+        }
+      },
+      "options": [
+        {
+          "label": "Fit",
+          "key": "fit",
+          "values": [
+            "Slim",
+            "Regular",
+            "Relaxed"
+          ]
+        },
+        {
+          "label": "Fabric type",
+          "key": "fabricType",
+          "values": [
+            "Tropical wool",
+            "Cotton twill",
+            "Linen blend",
+            "Poly-viscose"
+          ]
+        },
+        {
+          "label": "Waistband",
+          "key": "waistband",
+          "values": [
+            "Classic waistband",
+            "Extended tab",
+            "Side adjusters"
+          ]
+        },
+        {
+          "label": "Pleats",
+          "key": "pleats",
+          "values": [
+            "Flat front",
+            "Single pleat",
+            "Double pleat"
+          ]
+        },
+        {
+          "label": "Pockets",
+          "key": "pockets",
+          "values": [
+            "Slant pockets",
+            "Straight pockets",
+            "Frogmouth pockets"
+          ]
+        },
+        {
+          "label": "Bottom style",
+          "key": "bottomStyle",
+          "values": [
+            "Plain hem",
+            "Turn-up cuff (1.5 in)",
+            "Blind stitch"
+          ]
+        },
+        {
+          "label": "Trouser length",
+          "key": "trouserLength",
+          "values": [
+            "Full break",
+            "Half break",
+            "No break (Ankle)"
+          ]
+        },
+        {
+          "label": "Bottom opening",
+          "key": "opening",
+          "type": "number",
+          "suffix": " inches",
+          "min": 12,
+          "max": 24,
+          "step": 0.25,
+          "defaultValue": 16
+        }
+      ]
+    },
+    {
+      "id": "blazer",
+      "name": "The Malabar Hill Blazer",
+      "category": "Blazers",
+      "categoryId": "blazers",
+      "price": 24500,
+      "inStock": true,
+      "bestSeller": true,
+      "description": "A refined standalone jacket. Choose its cloth and construction details with our atelier.",
+      "fabrics": [
+        "Raymond",
+        "Siyaram's",
+        "Arvind",
+        "Linen Club",
+        "Minister White"
+      ],
+      "colours": [
+        "Black",
+        "Navy Blue",
+        "Brown",
+        "Light Grey"
+      ],
+      "defaultColour": "Navy Blue",
+      "model3d": "",
+      "images": {
+        "Navy Blue": {
+          "front": "/images/editorial/hero-bespoke.jpg"
+        }
+      },
+      "options": [
+        {
+          "label": "Fit",
+          "key": "fit",
+          "values": [
+            "Slim",
+            "Regular",
+            "Relaxed"
+          ]
+        },
+        {
+          "label": "Fabric type",
+          "key": "fabricType",
+          "values": [
+            "Tropical wool",
+            "Textured wool",
+            "Linen blend",
+            "Tweed"
+          ]
+        },
+        {
+          "label": "Construction",
+          "key": "construction",
+          "values": [
+            "Single-breasted",
+            "Double-breasted"
+          ]
+        },
+        {
+          "label": "Lapel style",
+          "key": "lapel",
+          "values": [
+            "Notch",
+            "Peak",
+            "Shawl"
+          ]
+        },
+        {
+          "label": "Front buttons",
+          "key": "frontButtons",
+          "values": [
+            "Two button",
+            "Three button",
+            "Double row (6x2)"
+          ]
+        },
+        {
+          "label": "Button material",
+          "key": "buttonMaterial",
+          "values": [
+            "Natural horn",
+            "Mother of pearl",
+            "Matte resin",
+            "Brass"
+          ]
+        },
+        {
+          "label": "Button colour",
+          "key": "buttonColour",
+          "values": [
+            "Dark horn",
+            "Antique gold",
+            "Navy",
+            "Ivory"
+          ]
+        },
+        {
+          "label": "Sleeve buttons",
+          "key": "sleeveButtons",
+          "values": [
+            "Three buttons",
+            "Four buttons (Working)",
+            "Five buttons"
+          ]
+        },
+        {
+          "label": "Pocket style",
+          "key": "pocket",
+          "values": [
+            "Flap pockets",
+            "Patch pockets",
+            "Jetted pockets"
+          ]
+        },
+        {
+          "label": "Back vent",
+          "key": "vent",
+          "values": [
+            "Single vent",
+            "Double vent",
+            "No vent"
+          ]
+        },
+        {
+          "label": "Inner lining",
+          "key": "lining",
+          "values": [
+            "Half lined",
+            "Fully lined (Bemberg)",
+            "Unlined"
+          ]
+        },
+        {
+          "label": "Jacket length",
+          "key": "jacketLength",
+          "values": [
+            "Short",
+            "Regular",
+            "Long"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "two-piece-suit",
+      "name": "The Fort Two-Piece Suit",
+      "category": "Two-Piece Suits",
+      "categoryId": "two-piece-suits",
+      "price": 38900,
+      "inStock": true,
+      "bestSeller": true,
+      "description": "A two-piece suit built around your proportions and finished for the moments that matter.",
+      "fabrics": [
+        "Raymond",
+        "Siyaram's",
+        "Arvind",
+        "Linen Club",
+        "Minister White"
+      ],
+      "colours": [
+        "Black",
+        "Navy Blue",
+        "Brown",
+        "Light Grey"
+      ],
+      "defaultColour": "Navy Blue",
+      "model3d": "",
+      "images": {
+        "Navy Blue": {
+          "front": "/images/products/suits/navy-two-piece-front.jpeg"
+        }
+      },
+      "options": [
+        {
+          "label": "Fit",
+          "key": "fit",
+          "values": [
+            "Slim",
+            "Regular",
+            "Relaxed"
+          ]
+        },
+        {
+          "label": "Fabric type",
+          "key": "fabricType",
+          "values": [
+            "Tropical wool",
+            "Fine suiting",
+            "Poly-viscose",
+            "Linen blend"
+          ]
+        },
+        {
+          "label": "Construction",
+          "key": "construction",
+          "values": [
+            "Single-breasted",
+            "Double-breasted"
+          ]
+        },
+        {
+          "label": "Lapel style",
+          "key": "lapel",
+          "values": [
+            "Notch",
+            "Peak",
+            "Shawl"
+          ]
+        },
+        {
+          "label": "Front buttons",
+          "key": "frontButtons",
+          "values": [
+            "Two button",
+            "Three button",
+            "Double row (6x2)"
+          ]
+        },
+        {
+          "label": "Button material",
+          "key": "buttonMaterial",
+          "values": [
+            "Natural horn",
+            "Mother of pearl",
+            "Matte resin"
+          ]
+        },
+        {
+          "label": "Button colour",
+          "key": "buttonColour",
+          "values": [
+            "Dark horn",
+            "Antique gold",
+            "Navy",
+            "Ivory"
+          ]
+        },
+        {
+          "label": "Sleeve buttons",
+          "key": "sleeveButtons",
+          "values": [
+            "Three buttons",
+            "Four buttons (Working)",
+            "Five buttons"
+          ]
+        },
+        {
+          "label": "Pocket style",
+          "key": "pocket",
+          "values": [
+            "Flap",
+            "Jetted",
+            "Ticket pocket"
+          ]
+        },
+        {
+          "label": "Back vent",
+          "key": "vent",
+          "values": [
+            "Single vent",
+            "Double vent",
+            "No vent"
+          ]
+        },
+        {
+          "label": "Inner lining",
+          "key": "lining",
+          "values": [
+            "Half lined",
+            "Fully lined",
+            "Unlined"
+          ]
+        },
+        {
+          "label": "Trouser style",
+          "key": "trouserStyle",
+          "values": [
+            "Classic tailored",
+            "Slim tapered"
+          ]
+        },
+        {
+          "label": "Trouser pleats",
+          "key": "trouserPleats",
+          "values": [
+            "Flat front",
+            "Single pleat",
+            "Double pleat"
+          ]
+        },
+        {
+          "label": "Trouser waistband",
+          "key": "trouserWaistband",
+          "values": [
+            "Belt loops",
+            "Extended tab",
+            "Side adjusters"
+          ]
+        },
+        {
+          "label": "Jacket length",
+          "key": "jacketLength",
+          "values": [
+            "Short",
+            "Regular",
+            "Long"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "three-piece-suit",
+      "name": "The Colaba Three-Piece",
+      "category": "Three-Piece Suits",
+      "categoryId": "three-piece-suits",
+      "price": 48900,
+      "inStock": true,
+      "bestSeller": true,
+      "description": "A composed three-piece silhouette with a matching waistcoat, made for a day worth remembering.",
+      "fabrics": [
+        "Raymond",
+        "Siyaram's",
+        "Arvind",
+        "Linen Club",
+        "Minister White"
+      ],
+      "colours": [
+        "Black",
+        "Navy Blue",
+        "Brown",
+        "Light Grey"
+      ],
+      "defaultColour": "Navy Blue",
+      "model3d": "",
+      "images": {
+        "Navy Blue": {
+          "front": "/images/products/waistcoats/navy-front.jpeg"
+        }
+      },
+      "options": [
+        {
+          "label": "Fit",
+          "key": "fit",
+          "values": [
+            "Slim",
+            "Regular",
+            "Relaxed"
+          ]
+        },
+        {
+          "label": "Fabric type",
+          "key": "fabricType",
+          "values": [
+            "Tropical wool",
+            "Fine suiting",
+            "Textured wool",
+            "Linen blend"
+          ]
+        },
+        {
+          "label": "Construction",
+          "key": "construction",
+          "values": [
+            "Single-breasted",
+            "Double-breasted"
+          ]
+        },
+        {
+          "label": "Lapel style",
+          "key": "lapel",
+          "values": [
+            "Notch",
+            "Peak",
+            "Shawl"
+          ]
+        },
+        {
+          "label": "Front buttons",
+          "key": "frontButtons",
+          "values": [
+            "Two button",
+            "Three button",
+            "Double row (6x2)"
+          ]
+        },
+        {
+          "label": "Button material",
+          "key": "buttonMaterial",
+          "values": [
+            "Natural horn",
+            "Mother of pearl",
+            "Matte resin"
+          ]
+        },
+        {
+          "label": "Button colour",
+          "key": "buttonColour",
+          "values": [
+            "Dark horn",
+            "Antique gold",
+            "Navy",
+            "Ivory"
+          ]
+        },
+        {
+          "label": "Sleeve buttons",
+          "key": "sleeveButtons",
+          "values": [
+            "Three buttons",
+            "Four buttons (Working)",
+            "Five buttons"
+          ]
+        },
+        {
+          "label": "Pocket style",
+          "key": "pocket",
+          "values": [
+            "Flap",
+            "Jetted",
+            "Ticket pocket"
+          ]
+        },
+        {
+          "label": "Back vent",
+          "key": "vent",
+          "values": [
+            "Single vent",
+            "Double vent",
+            "No vent"
+          ]
+        },
+        {
+          "label": "Inner lining",
+          "key": "lining",
+          "values": [
+            "Half lined",
+            "Fully lined",
+            "Unlined"
+          ]
+        },
+        {
+          "label": "Trouser style",
+          "key": "trouserStyle",
+          "values": [
+            "Classic tailored",
+            "Slim tapered"
+          ]
+        },
+        {
+          "label": "Trouser pleats",
+          "key": "trouserPleats",
+          "values": [
+            "Flat front",
+            "Single pleat",
+            "Double pleat"
+          ]
+        },
+        {
+          "label": "Trouser waistband",
+          "key": "trouserWaistband",
+          "values": [
+            "Belt loops",
+            "Extended tab",
+            "Side adjusters"
+          ]
+        },
+        {
+          "label": "Jacket length",
+          "key": "jacketLength",
+          "values": [
+            "Short",
+            "Regular",
+            "Long"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "heritage-kurta",
+      "name": "The Heritage Kurta",
+      "category": "Kurtas",
+      "categoryId": "kurtas",
+      "price": 8900,
+      "inStock": true,
+      "bestSeller": false,
+      "description": "An easy, elegant kurta that honours the familiar and feels entirely your own.",
+      "fabrics": [
+        "Raymond",
+        "Siyaram's",
+        "Arvind",
+        "Linen Club",
+        "Minister White"
+      ],
+      "colours": [
+        "White",
+        "Ivory",
+        "Beige",
+        "Navy Blue"
+      ],
+      "defaultColour": "Ivory",
+      "model3d": "",
+      "images": {
+        "Ivory": {
+          "front": "/images/products/kurtas/ivory-front.png"
+        }
+      },
+      "options": [
+        {
+          "label": "Fit",
+          "key": "fit",
+          "values": [
+            "Slim",
+            "Regular",
+            "Relaxed"
+          ]
+        },
+        {
+          "label": "Fabric type",
+          "key": "fabricType",
+          "values": [
+            "Cotton",
+            "Linen",
+            "Cotton-silk",
+            "Textured weave"
+          ]
+        },
+        {
+          "label": "Collar style",
+          "key": "collar",
+          "values": [
+            "Band collar",
+            "Mandarin collar",
+            "No collar"
+          ]
+        },
+        {
+          "label": "Button style",
+          "key": "buttons",
+          "values": [
+            "Fabric covered",
+            "Natural wood",
+            "Classic ivory",
+            "Antique gold"
+          ]
+        },
+        {
+          "label": "Sleeve style",
+          "key": "sleeve",
+          "values": [
+            "Full sleeve",
+            "Three-quarter sleeve",
+            "Roll-up tab sleeve"
+          ]
+        },
+        {
+          "label": "Embroidery",
+          "key": "embroidery",
+          "values": [
+            "None",
+            "Subtle collar detail",
+            "Placket embroidery",
+            "Monogram detail"
+          ]
+        },
+        {
+          "label": "Length",
+          "key": "length",
+          "type": "number",
+          "suffix": " inches",
+          "min": 25,
+          "max": 48,
+          "step": 0.5,
+          "defaultValue": 38
+        }
+      ]
+    },
+    {
+      "id": "waistcoat",
+      "name": "The Regal Waistcoat",
+      "category": "Waistcoats",
+      "categoryId": "waistcoats",
+      "price": 14500,
+      "inStock": true,
+      "bestSeller": false,
+      "description": "A considered waistcoat, tailored as a quietly distinctive layer or part of a three-piece look.",
+      "fabrics": [
+        "Raymond",
+        "Siyaram's",
+        "Arvind",
+        "Linen Club",
+        "Minister White"
+      ],
+      "colours": [
+        "Black",
+        "Navy Blue",
+        "Brown",
+        "Light Grey"
+      ],
+      "defaultColour": "Navy Blue",
+      "model3d": "",
+      "images": {
+        "Navy Blue": {
+          "front": "/images/products/waistcoats/navy-front.jpeg"
+        }
+      },
+      "options": [
+        {
+          "label": "Fit",
+          "key": "fit",
+          "values": [
+            "Slim",
+            "Regular",
+            "Relaxed"
+          ]
+        },
+        {
+          "label": "Fabric type",
+          "key": "fabricType",
+          "values": [
+            "Tropical wool",
+            "Fine suiting",
+            "Textured wool",
+            "Linen blend"
+          ]
+        },
+        {
+          "label": "Collar style",
+          "key": "collar",
+          "values": [
+            "No collar (V-neck)",
+            "Band / Nehru collar",
+            "Notch lapel"
+          ]
+        },
+        {
+          "label": "Button style",
+          "key": "buttonMaterial",
+          "values": [
+            "Natural horn",
+            "Mother of pearl",
+            "Antique gold",
+            "Fabric covered"
+          ]
+        },
+        {
+          "label": "Embroidery",
+          "key": "embroidery",
+          "values": [
+            "None",
+            "Subtle pocket trim",
+            "Tonal motif"
+          ]
+        },
+        {
+          "label": "Back style",
+          "key": "backStyle",
+          "values": [
+            "Matching fabric",
+            "Adjustable satin lining"
+          ]
+        },
+        {
+          "label": "Length",
+          "key": "length",
+          "values": [
+            "Standard waist",
+            "Longline"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wedding-royal-ensemble",
+      "name": "The Royal Wedding Three-Piece",
+      "category": "Wedding Collection",
+      "categoryId": "wedding-collection",
+      "price": 58900,
+      "inStock": true,
+      "bestSeller": true,
+      "description": "Designed for the groom and wedding celebrations — crafted in rich suiting with hand-finished lapels, bespoke waistcoat, and celebratory detailing.",
+      "fabrics": [
+        "Raymond",
+        "Siyaram's",
+        "Arvind",
+        "Linen Club",
+        "Minister White"
+      ],
+      "colours": [
+        "Black",
+        "Navy Blue",
+        "Brown",
+        "Light Grey"
+      ],
+      "defaultColour": "Navy Blue",
+      "model3d": "",
+      "images": {
+        "Navy Blue": {
+          "front": "/images/editorial/hero-bespoke.jpg"
+        },
+        "Black": {
+          "front": "/images/products/suits/navy-two-piece-front.jpeg"
+        }
+      },
+      "options": [
+        {
+          "label": "Fit",
+          "key": "fit",
+          "values": [
+            "Slim",
+            "Regular",
+            "Relaxed"
+          ]
+        },
+        {
+          "label": "Fabric type",
+          "key": "fabricType",
+          "values": [
+            "Super 120s Wool",
+            "Silk-wool blend",
+            "Rich textured suiting"
+          ]
+        },
+        {
+          "label": "Construction",
+          "key": "construction",
+          "values": [
+            "Single-breasted",
+            "Double-breasted"
+          ]
+        },
+        {
+          "label": "Lapel style",
+          "key": "lapel",
+          "values": [
+            "Peak",
+            "Shawl (Satin)",
+            "Notch"
+          ]
+        },
+        {
+          "label": "Front buttons",
+          "key": "frontButtons",
+          "values": [
+            "Two button",
+            "One button (Tuxedo)",
+            "Double row"
+          ]
+        },
+        {
+          "label": "Button material",
+          "key": "buttonMaterial",
+          "values": [
+            "Silk covered",
+            "Natural horn",
+            "Antique gold"
+          ]
+        },
+        {
+          "label": "Inner lining",
+          "key": "lining",
+          "values": [
+            "Champagne Bemberg",
+            "Ivory Jacquard",
+            "Deep Navy Silk"
+          ]
+        },
+        {
+          "label": "Trouser style",
+          "key": "trouserStyle",
+          "values": [
+            "Classic tailored",
+            "Tuxedo stripe"
+          ]
+        },
+        {
+          "label": "Jacket length",
+          "key": "jacketLength",
+          "values": [
+            "Regular",
+            "Long"
+          ]
+        }
+      ]
+    }
+  ],
+  "fabricBrands": [
+    "Raymond",
+    "Siyaram's",
+    "Arvind",
+    "Linen Club",
+    "Minister White"
+  ],
+  "fabricCatalog": [],
+  "pricing": {
+    "fabricPremiums": {
+      "Raymond": 0,
+      "Siyaram's": 0,
+      "Arvind": 0,
+      "Linen Club": 0,
+      "Minister White": 0
+    },
+    "optionPremiums": {
+      "premiumButtons": 0,
+      "lining": 0,
+      "embroidery": 0,
+      "monogram": 0
+    },
+    "priceRules": [],
+    "coupons": [
+      {
+        "code": "SAWANT10",
+        "discountPercent": 10,
+        "active": true,
+        "description": "10% off your bespoke order"
+      }
+    ]
+  },
+  "orders": [],
+  "appointments": [],
+  "customers": []
+}

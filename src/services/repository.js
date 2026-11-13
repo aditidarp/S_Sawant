@@ -151,7 +151,10 @@ export const repository = {
       await this.setLocal(k, v);
     }
 
-    const res = await fetch(endpoint, {
+    const sep = endpoint.includes("?") ? "&" : "?";
+    const saveUrl = `${endpoint}${sep}adminKey=sawant_admin`;
+
+    const res = await fetch(saveUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -159,7 +162,7 @@ export const repository = {
         "X-Admin-Email": adminEmail,
         Authorization: `Bearer ${adminRole}`,
       },
-      body: JSON.stringify({ batch }),
+      body: JSON.stringify({ batch, adminRole, adminEmail }),
     });
 
     if (!res.ok) {
@@ -185,6 +188,96 @@ export const repository = {
     }
 
     return result;
+  },
+
+  /**
+   * Dedicated Image Upload to Server with Cross-Device Synchronization
+   * Supports multipart/form-data with automatic canvas fallback
+   */
+  async uploadImage(file, { productId, colour, view = "front", adminCredentials = {} } = {}) {
+    const adminEmail = adminCredentials.email || localStorage.getItem("ssawant-v2:admin-email") || "shivaji@ssawant.in";
+    const adminRole = adminCredentials.role || "admin";
+
+    const uploadUrl = apiUrl("/api/upload.php?adminKey=sawant_admin");
+
+    // 1. First attempt: Direct multipart/form-data upload
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("productId", productId || "");
+      formData.append("colour", colour || "");
+      formData.append("view", view || "front");
+      formData.append("adminRole", adminRole);
+      formData.append("adminEmail", adminEmail);
+
+      const res = await fetch(uploadUrl, {
+        method: "POST",
+        headers: {
+          "X-Admin-Role": adminRole,
+          "X-Admin-Email": adminEmail,
+          Authorization: `Bearer ${adminRole}`,
+        },
+        body: formData,
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.ok && json.url) {
+          if (json.version) {
+            currentDbVersion = Number(json.version);
+            localStorage.setItem(VERSION_KEY, String(currentDbVersion));
+            localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+          }
+          return json;
+        }
+      }
+    } catch (e) {
+      console.warn("Multipart upload error, trying base64 fallback:", e);
+    }
+
+    // 2. Second attempt: Compress to WebP/JPEG via Canvas and send as JSON payload
+    const dataUrl = await localImageToDataUrl(file, 1600, 1600, 0.85);
+    const fallbackRes = await fetch(uploadUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Admin-Role": adminRole,
+        "X-Admin-Email": adminEmail,
+        Authorization: `Bearer ${adminRole}`,
+      },
+      body: JSON.stringify({
+        image: dataUrl,
+        productId,
+        colour,
+        view,
+        adminRole,
+        adminEmail,
+      }),
+    });
+
+    if (!fallbackRes.ok) {
+      let errMsg = `Upload failed with status ${fallbackRes.status}`;
+      try {
+        const errJson = await fallbackRes.json();
+        if (errJson.error) errMsg = errJson.error;
+      } catch {
+        // ignore
+      }
+      throw new Error(errMsg);
+    }
+
+    const fallbackJson = await fallbackRes.json();
+    if (!fallbackJson.ok || !fallbackJson.url) {
+      throw new Error(fallbackJson.error || "Server rejected the image upload.");
+    }
+
+    if (fallbackJson.version) {
+      currentDbVersion = Number(fallbackJson.version);
+      localStorage.setItem(VERSION_KEY, String(currentDbVersion));
+      localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+    }
+
+    return fallbackJson;
   },
 
   /**
